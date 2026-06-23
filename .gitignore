@@ -1,4 +1,6 @@
+# ========================================
 # Python
+# ========================================
 __pycache__/
 *.py[cod]
 *$py.class
@@ -6,29 +8,69 @@ __pycache__/
 .Python
 *.egg-info/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
 # 虚拟环境
 .venv/
 venv/
 env/
+ENV/
 
-# IDE
+# ========================================
+# IDE / 编辑器
+# ========================================
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 .DS_Store
+Thumbs.db
 
+# ========================================
+# AI 客户端配置 / 状态
+# ========================================
+# Claude Code / Cursor / 其他 AI 客户端的本地配置
+.claude/
+.cursor/
+.agents/
+.aider*
+.continue/
+.conecone/
+.windsurf/
+
+# Codex / Codex CLI 等的协作提示词档案（仅本地）
+.codex-prompts/
+.prompts/
+.ai-prompts/
+
+# ========================================
 # 本地配置
+# ========================================
 .env
 .env.local
+.env.*.local
+*.local
 
-# 临时文件
+# ========================================
+# 临时 / 日志
+# ========================================
 *.tmp
 *.log
 logs/
+*.bak
+*.swp
 
+# ========================================
 # 运行时生成
+# ========================================
 .tts_output/
 *.mp3
 !tts-lychee/data/**/*.mp3
+!shared/**/*.mp3
+*.wav
+!data/**/*.wav
+*.pcm
