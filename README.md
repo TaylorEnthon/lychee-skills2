@@ -1,92 +1,114 @@
 # lychee-skills2
 
-一组 Claude / AI 客户端的 skill，通过统一鉴权调用 [lychee-openapi](https://github.com/TaylorEnthon/lychee-openapi) 的能力。
+一组面向 Claude Code 与兼容 AI 客户端的 lychee OpenAPI skills。项目把语音、音色、字幕和短剧翻译能力封装为 9 个独立 skill，并提供统一鉴权、一键安装和跨 skill 自检命令。
 
-## 当前已装 skill
+每个 skill 都可独立安装，也可以通过根安装器一次装齐。
 
-| Skill | 触发 | 协议 | 端点 |
-|---|---|---|---|
-| `asr-lychee` | `/asr-lychee` "转录音频" "识别这段语音" | HTTP multipart | `POST /open/asr` |
+## Skills
+
+| Skill | 功能 | 主要端点 |
+| --- | --- | --- |
+| `asr-lychee` | 上传音频并识别为文本 | `POST /open/asr` |
+| `tts-lychee` | WebSocket 文本转 MP3，支持音色别名匹配 | `WSS /openapi/tts/ws_binary/v2` |
+| `voice-clone-lychee` | 上传参考音频克隆音色 | `POST /open/voice/zeroshot/clone` |
+| `voice-infer-lychee` | 使用克隆音色执行推理并返回元数据 | `POST /open/voice/zeroshot/infer` |
+| `timbre-design-lychee` | 按性别、年龄、风格和口音设计试听音色 | `POST /open/timbre-design/generate` |
+| `speaker-classify-lychee` | 异步识别说话人及其文本分段 | `POST /open/speaker-classify/submit`、`GET /status` |
+| `voice-separate-lychee` | 异步分离人声和背景音 | `POST /open/voice/separate`、`GET /status` |
+| `subtitle-erase-lychee` | 异步擦除视频字幕 | `POST /open/subtitle/erase`、`GET /result` |
+| `videots-lychee` | SRT 翻译、重译、回译、状态和结果下载 | `/open/videots/*` |
 
 ## 环境要求
 
 - Python 3.8+
-- 依赖：`requests`（HTTP）、`websocket-client`（TTS 流式，后续 skill 装上后用）
-- API Key：从 https://shanhaistudio.lycheeai.com.cn/ 获取
+- `requests`：HTTP 与文件上传 skill
+- `websocket-client`：`tts-lychee`
+- 可访问 `https://shanhaistudio.lycheeai.com.cn/openapi`
+
+安装依赖：
+
+```bash
+python -m pip install requests websocket-client
+```
+
+## 一键安装
+
+克隆仓库后，在仓库根目录运行：
+
+```bash
+bash install.sh
+```
+
+Windows PowerShell 7：
+
+```powershell
+pwsh -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
+```
+
+安装器会把 9 个 skill 复制到 `~/.claude/skills/`，并把两个跨 skill command 复制到 `~/.claude/commands/`。安装过程可重复运行；单个 skill 安装失败会显示 WARN，其余 skill 继续安装。
+
+如只需一个 skill，也可运行对应子目录中的 `install.sh` 或 `install.ps1`。
 
 ## 配置 API Key
 
-`LYCHEE_API_KEY`（找不到 fallback `TTS_API_KEY`）：
+安装后运行 `/lychee-set-key`，按提示获取并设置 `LYCHEE_API_KEY`。完整说明见 [commands/lychee-set-key.md](commands/lychee-set-key.md)。
 
-**Windows PowerShell：**
-```powershell
-setx LYCHEE_API_KEY "你的API密钥"
-```
-
-**macOS / Linux bash：**
-```bash
-export LYCHEE_API_KEY="你的API密钥"
-```
-
-设置后重启 AI 客户端，使其继承新环境变量。
-
-## 安装
-
-### 单 skill（推荐开发时）
-
-```bash
-bash asr-lychee/install.sh
-# 或 Windows PowerShell
-powershell -ExecutionPolicy Bypass -File asr-lychee/install.ps1
-```
-
-装到 `~/.claude/skills/asr-lychee/`。
-
-### 根 install
-
-（计划中——等所有 9 个 skill 落地后做）
+旧环境变量 `TTS_API_KEY` 仍可作为 fallback；两个变量同时存在时优先使用 `LYCHEE_API_KEY`。
 
 ## 自检
+
+运行 `/lychee-doctor` 一次检查全部已安装 skill。命令会汇总 Python、依赖、API Key、共享模块和 HTTP health 状态；定义见 [commands/lychee-doctor.md](commands/lychee-doctor.md)。
+
+也可以直接运行单个 skill 的 doctor：
 
 ```bash
 bash ~/.claude/skills/asr-lychee/doctor.sh
 ```
 
-不调真实业务接口，检查 Python 版本、依赖、API key 提示、shared/ 能 import、HTTP base 可达。
-
 ## 仓库结构
 
-```
+```text
 lychee-skills2/
+├── install.sh / install.ps1       一键安装全部 skill 与 commands
 ├── README.md
-├── LICENSE
-├── .gitignore
-├── shared/                9 个 skill 共享的 Python 模块
-│   ├── auth.py            get_api_key() 读 LYCHEE_API_KEY 兼容 TTS_API_KEY
-│   ├── http_client.py     post_multipart / post_json / get_json / poll_status
-│   └── ws_client.py       TTS WebSocket 二进制协议（tts-lychee 实现，其他 skill 占位）
-├── asr-lychee/            第一个 skill
-│   ├── SKILL.md
-│   ├── install.sh / install.ps1
-│   ├── doctor.sh / doctor.ps1
-│   └── scripts/asr.py
-└── ...
+├── LICENSE                        MIT
+├── commands/
+│   ├── lychee-set-key.md          API Key 配置命令
+│   └── lychee-doctor.md           全量自检命令
+├── shared/
+│   ├── auth.py                    API Key 读取与兼容逻辑
+│   ├── http_client.py             HTTP 请求与 ApiResponse 解包
+│   └── ws_client.py               TTS WebSocket 二进制协议
+├── asr-lychee/
+├── tts-lychee/
+├── voice-clone-lychee/
+├── voice-infer-lychee/
+├── timbre-design-lychee/
+├── speaker-classify-lychee/
+├── voice-separate-lychee/
+├── subtitle-erase-lychee/
+└── videots-lychee/
 ```
+
+每个 skill 子目录包含 `SKILL.md`、`scripts/`、`install.sh`、`install.ps1`、`doctor.sh` 和 `doctor.ps1`；安装时还会复制所需的 `shared/`，`tts-lychee` 另带 `data/` 音色数据。
 
 ## 开发路线
 
-第一阶段：9 个独立 skill。第二阶段：合并。每个 skill 都在 `asr-lychee/` 模板上演进。
+### 第一阶段：独立 skills
 
-- [x] `asr-lychee` — HTTP 语音识别
-- [ ] `tts-lychee` — WebSocket 语音合成（含音色匹配）
-- [ ] `voice-clone-lychee` — 声音克隆
-- [ ] `voice-infer-lychee` — 用克隆音色合成
-- [ ] `timbre-design-lychee` — 音色设计
-- [ ] `voice-separate-lychee` — 人声/背景音分离
-- [ ] `subtitle-erase-lychee` — 视频字幕擦除
-- [ ] `videots-lychee` — SRT 字幕翻译
-- [ ] `speaker-classify-lychee` — 说话人分类
+- [x] 9/9 skill 全部完成
+- [x] HTTP 与 WebSocket 公共客户端
+- [x] 单 skill 安装、自检与根一键安装
+- [x] API Key 配置和全量 doctor command
+
+### 可能的第二阶段
+
+- 跨 skill 工作流编排，例如克隆音色后直接合成、字幕翻译后自动配音
+- 自动化契约测试、安装回归和多平台 CI
+- 依赖自动检测与可选的一键安装
+- 统一任务历史、结果下载和失败重试体验
+- 根据 lychee OpenAPI 新端点继续扩展 skills
 
 ## License
 
-MIT
+[MIT](LICENSE)
