@@ -3,6 +3,7 @@ name: tts-lychee
 description: |
   调 lychee-openapi 的 TTS WebSocket 接口，文本合成 MP3 音频。
   触发：用户说「合成语音」「TTS」「朗读这段」「/tts-lychee」「用温柔女声说」。
+  不要用本 skill 列音色（用 /tts-lychee-list-voices）或预览匹配（用 /tts-lychee-preview-match）。
 ---
 
 # TTS Lychee
@@ -12,6 +13,11 @@ description: |
 ## 配置
 
 设置环境变量 `LYCHEE_API_KEY`；未设置时会兼容读取 `TTS_API_KEY`。运行 `/lychee-set-key` 可查看配置指引。
+
+## 相关 slash command
+
+- `/tts-lychee-list-voices` — 列出所有支持的音色
+- `/tts-lychee-preview-match "<描述>"` — 预览自然语言描述匹配到哪个音色（不合成）
 
 ## 用法
 

@@ -222,9 +222,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--speed", type=float, default=1.0, help="语速（默认 1.0）")
     parser.add_argument("--volume", type=float, default=1.0, help="音量（默认 1.0）")
     parser.add_argument("--timeout", type=float, default=90.0, help="WebSocket 超时秒数（默认 90）")
-    parser.add_argument("--list-voices", action="store_true", help="按分类列出全部可用音色")
-    parser.add_argument("--preview-match", help="预览描述将匹配的音色，不合成")
-    parser.add_argument("--doctor", action="store_true", help="运行离线自检")
+    parser.add_argument("--debug", action="store_true", help="输出调试信息")
     return parser
 
 
@@ -232,39 +230,32 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     configure_stdio()
     args = build_parser().parse_args(argv)
     try:
-        if args.doctor:
-            result = run_doctor()
-        elif args.list_voices:
-            result = list_voices()
-        elif args.preview_match is not None:
-            result = preview_match(args.preview_match)
-        else:
-            if not args.text or not args.text.strip():
-                raise ValueError("--text is required for synthesis")
-            if len(args.text) > 5000:
-                raise ValueError("--text must not exceed 5000 characters")
-            if args.speed <= 0 or args.volume <= 0 or args.timeout <= 0:
-                raise ValueError("--speed, --volume and --timeout must be greater than zero")
+        if not args.text or not args.text.strip():
+            raise ValueError("--text is required for synthesis")
+        if len(args.text) > 5000:
+            raise ValueError("--text must not exceed 5000 characters")
+        if args.speed <= 0 or args.volume <= 0 or args.timeout <= 0:
+            raise ValueError("--speed, --volume and --timeout must be greater than zero")
 
-            alias_map, presets, voice_aliases = load_voice_data()
-            voice_id, _, _ = resolve_voice_id(
-                args.voice, alias_map, presets, voice_aliases
-            )
-            speaker_id = resolve_speaker_id(presets[voice_id])
-            voice_name = presets[voice_id]["name"]
-            output = args.output or "{}-{}_tts.mp3".format(
-                datetime.now().strftime("%Y%m%d-%H%M%S"),
-                sanitize_filename_part(voice_name),
-            )
-            written = tts_synthesize(
-                args.text,
-                speaker_id,
-                args.speed,
-                args.volume,
-                output,
-                timeout=args.timeout,
-            )
-            result = {"success": True, "output": written, "voice": voice_name}
+        alias_map, presets, voice_aliases = load_voice_data()
+        voice_id, _, _ = resolve_voice_id(
+            args.voice, alias_map, presets, voice_aliases
+        )
+        speaker_id = resolve_speaker_id(presets[voice_id])
+        voice_name = presets[voice_id]["name"]
+        output = args.output or "{}-{}_tts.mp3".format(
+            datetime.now().strftime("%Y%m%d-%H%M%S"),
+            sanitize_filename_part(voice_name),
+        )
+        written = tts_synthesize(
+            args.text,
+            speaker_id,
+            args.speed,
+            args.volume,
+            output,
+            timeout=args.timeout,
+        )
+        result = {"success": True, "output": written, "voice": voice_name}
 
         print(json.dumps(result, ensure_ascii=False))
         return 0
