@@ -6,7 +6,8 @@ $ErrorActionPreference = "Stop"
 $SourceDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $Name = Split-Path -Leaf $SourceDir
 $SkillTarget = Join-Path $ClaudeHome "skills\$Name"
-$SharedSource = Join-Path $SourceDir "..\shared"
+$RepoRoot = [System.IO.Path]::GetFullPath((Join-Path $SourceDir "..\.."))
+$SharedSource = Join-Path $RepoRoot "shared"
 $DataSource = Join-Path $SourceDir "data"
 $LegacyCommand = Join-Path $ClaudeHome "commands\$Name.md"
 
