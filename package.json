@@ -1,0 +1,9 @@
+{
+  "name": "lychee-skills2",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Claude skills for lychee OpenAPI (TTS / ASR / voice clone / subtitle translation etc.)",
+  "scripts": {
+    "install": "bash install.sh"
+  }
+}

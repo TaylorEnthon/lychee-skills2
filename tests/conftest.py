@@ -7,6 +7,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SHARED_DIR = REPO_ROOT / "shared"
+SKILLS_DIR = REPO_ROOT / "skills"
 SKILLS = [
     "asr-lychee",
     "tts-lychee",
@@ -27,7 +28,7 @@ def skill_name(request):
 
 @pytest.fixture
 def skill_dir(skill_name):
-    return REPO_ROOT / skill_name
+    return SKILLS_DIR / skill_name
 
 
 @pytest.fixture

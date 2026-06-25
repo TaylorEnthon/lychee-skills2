@@ -6,7 +6,7 @@ SKILLS_DIR="$HOME/.claude/skills"
 
 echo "== 安装所有 lychee skills =="
 mkdir -p "$SKILLS_DIR"
-for skill_dir in "$HERE"/*-lychee; do
+for skill_dir in "$HERE"/skills/*-lychee; do
     [ -d "$skill_dir" ] || continue
     installer="$skill_dir/install.sh"
     [ -f "$installer" ] || continue

@@ -33,6 +33,18 @@ python -m pip install requests websocket-client
 
 ## 一键安装
 
+### 方式零：npx 一行安装（推荐）
+
+```bash
+npx skills add TaylorEnthon/lychee-skills2 --skill tts-lychee
+# 或一次性装全部
+bash install.sh
+```
+
+`npx skills add` 自动从 `skills/<name>/` 拉文件安装到 `~/.claude/skills/<name>/`。
+
+### 方式一：仓库安装器
+
 克隆仓库后，在仓库根目录运行：
 
 ```bash
@@ -47,7 +59,7 @@ pwsh -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
 
 安装器会把 9 个 skill 复制到 `~/.claude/skills/`，并把两个跨 skill command 复制到 `~/.claude/commands/`。安装过程可重复运行；单个 skill 安装失败会显示 WARN，其余 skill 继续安装。
 
-如只需一个 skill，也可运行对应子目录中的 `install.sh` 或 `install.ps1`。
+如只需一个 skill，也可运行 `skills/<name>-lychee/` 子目录中的 `install.sh` 或 `install.ps1`。
 
 ## 配置 API Key
 
@@ -79,15 +91,16 @@ lychee-skills2/
 │   ├── auth.py                    API Key 读取与兼容逻辑
 │   ├── http_client.py             HTTP 请求与 ApiResponse 解包
 │   └── ws_client.py               TTS WebSocket 二进制协议
-├── asr-lychee/
-├── tts-lychee/
-├── voice-clone-lychee/
-├── voice-infer-lychee/
-├── timbre-design-lychee/
-├── speaker-classify-lychee/
-├── voice-separate-lychee/
-├── subtitle-erase-lychee/
-└── videots-lychee/
+└── skills/
+    ├── asr-lychee/
+    ├── tts-lychee/
+    ├── voice-clone-lychee/
+    ├── voice-infer-lychee/
+    ├── timbre-design-lychee/
+    ├── speaker-classify-lychee/
+    ├── voice-separate-lychee/
+    ├── subtitle-erase-lychee/
+    └── videots-lychee/
 ```
 
 每个 skill 子目录包含 `SKILL.md`、`scripts/`、`install.sh`、`install.ps1`、`doctor.sh` 和 `doctor.ps1`；安装时还会复制所需的 `shared/`，`tts-lychee` 另带 `data/` 音色数据。

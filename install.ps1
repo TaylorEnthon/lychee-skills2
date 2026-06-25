@@ -6,7 +6,7 @@ $CommandsDir = Join-Path $HOME ".claude\commands"
 
 Write-Host "== 安装所有 lychee skills =="
 New-Item -ItemType Directory -Force -Path $SkillsDir | Out-Null
-$SkillDirs = Get-ChildItem -LiteralPath $Here -Directory |
+$SkillDirs = Get-ChildItem -LiteralPath (Join-Path $Here "skills") -Directory |
     Where-Object { $_.Name -like "*-lychee" } |
     Sort-Object Name
 foreach ($SkillDir in $SkillDirs) {
