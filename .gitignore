@@ -77,3 +77,6 @@ logs/
 
 # npx skills add 本地 lock（不提交）
 skills-lock.json
+
+# pytest 临时目录
+.pytest-tmp/

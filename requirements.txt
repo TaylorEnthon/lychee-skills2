@@ -1,0 +1,4 @@
+# lychee-skills2 仓库级依赖
+# 装好这 2 个后 9 个 skill 都能跑（除 tts-lychee 外 8 个只需要 requests）
+requests>=2.28
+websocket-client>=1.5

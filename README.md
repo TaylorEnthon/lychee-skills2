@@ -28,7 +28,8 @@
 安装依赖：
 
 ```bash
-python -m pip install requests websocket-client
+python -m pip install -r requirements.txt
+# 或单独装：pip install requests websocket-client
 ```
 
 ## 一键安装
@@ -36,12 +37,24 @@ python -m pip install requests websocket-client
 ### 方式零：npx 一行安装（推荐）
 
 ```bash
-npx skills add TaylorEnthon/lychee-skills2 --skill tts-lychee
-# 或一次性装全部
-bash install.sh
+# 装单个 skill
+npx -y skills add TaylorEnthon/lychee-skills2 --skill tts-lychee
+
+# 装多个 skill
+npx -y skills add TaylorEnthon/lychee-skills2 \
+  --skill asr-lychee \
+  --skill tts-lychee \
+  --skill voice-clone-lychee
+
+# 装全部 9 个（建议分 2-3 批，npx 工具对多 skill 的 clone 较慢且易断网）：
+npx -y skills add TaylorEnthon/lychee-skills2 --skill asr-lychee --skill tts-lychee --skill voice-clone-lychee
+npx -y skills add TaylorEnthon/lychee-skills2 --skill voice-infer-lychee --skill timbre-design-lychee --skill speaker-classify-lychee
+npx -y skills add TaylorEnthon/lychee-skills2 --skill voice-separate-lychee --skill subtitle-erase-lychee --skill videots-lychee
 ```
 
 `npx skills add` 自动从 `skills/<name>/` 拉文件安装到 `~/.claude/skills/<name>/`。
+
+> **注意**：`npx skills add` 一次 `--skill` 多次参数会逐个 clone 仓库，**网络不稳时容易中途断连**。推荐**分 2-3 批**跑（每批 3 个 skill），或直接用方式一的 `bash install.sh` 一次装齐。
 
 ### 方式一：仓库安装器
 
