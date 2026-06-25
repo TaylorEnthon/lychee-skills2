@@ -26,6 +26,13 @@ for cmd in "$HERE"/commands/*.md; do
     echo "  -> $(basename "$cmd")"
 done
 
+if [ -d "$HERE/.githooks" ] && [ -d "$HERE/.git" ]; then
+    mkdir -p "$HERE/.git/hooks"
+    cp "$HERE/.githooks/pre-commit" "$HERE/.git/hooks/pre-commit"
+    chmod +x "$HERE/.git/hooks/pre-commit"
+    echo "Installed pre-commit hook to $HERE/.git/hooks/pre-commit"
+fi
+
 echo "== 完成 =="
 echo "已安装：9 个 skill + 2 个跨 skill command"
 echo "运行 /lychee-doctor 自检；运行 /lychee-set-key 设置 API key"

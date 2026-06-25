@@ -80,3 +80,6 @@ skills-lock.json
 
 # pytest 临时目录
 .pytest-tmp/
+
+# pre-commit local cache
+/tmp/precommit-tests.log

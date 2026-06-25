@@ -30,6 +30,16 @@ foreach ($CommandFile in $CommandFiles) {
     Write-Host "  -> $($CommandFile.Name)"
 }
 
+$GitHooksDir = Join-Path $Here ".git/hooks"
+$SourceHook = Join-Path $Here ".githooks/pre-commit"
+if (Test-Path -LiteralPath $SourceHook) {
+    if (-not (Test-Path -LiteralPath $GitHooksDir)) {
+        New-Item -ItemType Directory -Path $GitHooksDir -Force | Out-Null
+    }
+    Copy-Item -LiteralPath $SourceHook -Destination (Join-Path $GitHooksDir "pre-commit") -Force
+    Write-Host "Installed pre-commit hook"
+}
+
 Write-Host "== 完成 =="
 Write-Host "已安装：9 个 skill + 2 个跨 skill command"
 Write-Host "运行 /lychee-doctor 自检；运行 /lychee-set-key 设置 API key"

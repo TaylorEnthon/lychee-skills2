@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# lychee-skills2 pre-commit hook
+# Installed by install.sh into .git/hooks/pre-commit.
+
+set -euo pipefail
+
+if [ -t 1 ]; then
+  RED='\033[0;31m'; YEL='\033[0;33m'; GRN='\033[0;32m'; NC='\033[0m'
+else
+  RED=''; YEL=''; GRN=''; NC=''
+fi
+
+echo "==> pre-commit: running checks..."
+
+if git diff --cached --name-only | grep -q '^skills-lock\.json$'; then
+  echo -e "${RED}FAIL: skills-lock.json is npx's local lock file, do not commit it.${NC}"
+  echo "  Run: git reset HEAD skills-lock.json"
+  exit 1
+fi
+
+if git diff --cached --name-only | grep -q '^\.codex-prompts/'; then
+  echo -e "${RED}FAIL: .codex-prompts/ is gitignored local content, do not commit.${NC}"
+  echo "  Run: git reset HEAD .codex-prompts/"
+  exit 1
+fi
+
+for f in $(git diff --cached --name-only --diff-filter=ACMR | grep '\.py$' || true); do
+  if [ -f "$f" ] && file "$f" 2>/dev/null | grep -qi 'CRLF'; then
+    echo -e "${RED}FAIL: $f has CRLF line endings${NC}"
+    echo "  Run: sed -i 's/\r$//' $f"
+    exit 1
+  fi
+done
+
+for f in $(git diff --cached --name-only --diff-filter=ACMR | grep '\.sh$' || true); do
+  if [ -f "$f" ] && file "$f" 2>/dev/null | grep -qi 'CRLF'; then
+    echo -e "${RED}FAIL: $f has CRLF line endings (.sh must be LF)${NC}"
+    echo "  Run: sed -i 's/\r$//' $f"
+    exit 1
+  fi
+done
+
+for f in $(git diff --cached --name-only --diff-filter=ACMR); do
+  if [ -f "$f" ]; then
+    size=$(wc -c < "$f" 2>/dev/null || echo 0)
+    if [ "$size" -gt 10485760 ]; then
+      echo -e "${RED}FAIL: $f is $(numfmt --to=iec $size 2>/dev/null || echo $size) (> 10MB)${NC}"
+      echo "  Use Git LFS or external storage for large files"
+      exit 1
+    fi
+  fi
+done
+
+if [ "${SKIP_PRECOMMIT_TESTS:-0}" = "1" ]; then
+  echo -e "${YEL}SKIP: SKIP_PRECOMMIT_TESTS=1, tests not run${NC}"
+elif git diff --cached --name-only | grep -qE '^(skills/|shared/|tests/|install\.sh|install\.ps1|requirements\.txt|\.github/)'; then
+  echo "==> pre-commit: running tests (52 smoke tests)..."
+  if ! bash tests/run_tests.sh > /tmp/precommit-tests.log 2>&1; then
+    echo -e "${RED}FAIL: tests failed (see /tmp/precommit-tests.log)${NC}"
+    tail -30 /tmp/precommit-tests.log
+    exit 1
+  fi
+  echo -e "${GRN}OK: 52 tests passed${NC}"
+else
+  echo "  (no skill-related files changed, skip tests)"
+fi
+
+echo -e "${GRN}==> pre-commit: all checks passed${NC}"
