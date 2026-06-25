@@ -74,3 +74,6 @@ logs/
 *.wav
 !data/**/*.wav
 *.pcm
+
+# npx skills add 本地 lock（不提交）
+skills-lock.json

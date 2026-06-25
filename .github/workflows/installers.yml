@@ -1,0 +1,86 @@
+name: Installers
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  bash:
+    name: bash install
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install with bash
+        run: |
+          export CLAUDE_HOME="$RUNNER_TEMP/claude-bash"
+          bash ./install.sh
+          for skill in asr tts voice-clone voice-infer timbre-design speaker-classify voice-separate subtitle-erase videots; do
+            test -f "$CLAUDE_HOME/skills/${skill}-lychee/SKILL.md" || (echo "Missing $skill" && exit 1)
+            test -f "$CLAUDE_HOME/skills/${skill}-lychee/scripts/"*.py || (echo "Missing $skill scripts" && exit 1)
+          done
+          for cmd in lychee-set-key.md lychee-doctor.md tts-lychee-list-voices.md tts-lychee-preview-match.md; do
+            test -f "$CLAUDE_HOME/commands/$cmd" || (echo "Missing command $cmd" && exit 1)
+          done
+          echo "OK: bash install verified all 9 skills + 4 commands"
+
+  windows-ps5:
+    name: Windows PowerShell 5.1 install
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install with Windows PowerShell 5.1
+        shell: powershell
+        run: |
+          $userProfile = Join-Path $env:RUNNER_TEMP "claude-winps-home"
+          New-Item -ItemType Directory -Force -Path $userProfile | Out-Null
+          $env:USERPROFILE = $userProfile
+          powershell -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
+          if ($LASTEXITCODE -ne 0) {
+            throw "install.ps1 failed with exit code $LASTEXITCODE"
+          }
+          $claudeHome = Join-Path $userProfile ".claude"
+          foreach ($skill in @('asr', 'tts', 'voice-clone', 'voice-infer', 'timbre-design', 'speaker-classify', 'voice-separate', 'subtitle-erase', 'videots')) {
+            $skillDir = Join-Path $claudeHome "skills/$skill-lychee"
+            if (-not (Test-Path -LiteralPath (Join-Path $skillDir "SKILL.md"))) {
+              throw "Skill $skill was not installed."
+            }
+          }
+          foreach ($cmd in @('lychee-set-key.md', 'lychee-doctor.md', 'tts-lychee-list-voices.md', 'tts-lychee-preview-match.md')) {
+            if (-not (Test-Path -LiteralPath (Join-Path $claudeHome "commands/$cmd"))) {
+              throw "Command $cmd was not installed."
+            }
+          }
+          Write-Host "OK: Windows PS 5.1 install verified"
+
+  pwsh7:
+    name: PowerShell 7 install
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install with PowerShell 7
+        shell: pwsh
+        run: |
+          $userProfile = Join-Path $env:RUNNER_TEMP "claude-pwsh-home"
+          New-Item -ItemType Directory -Force -Path $userProfile | Out-Null
+          $env:USERPROFILE = $userProfile
+          pwsh -NoLogo -NoProfile -File ./install.ps1
+          if ($LASTEXITCODE -ne 0) {
+            throw "install.ps1 failed with exit code $LASTEXITCODE"
+          }
+          $claudeHome = Join-Path $userProfile ".claude"
+          foreach ($skill in @('asr', 'tts', 'voice-clone', 'voice-infer', 'timbre-design', 'speaker-classify', 'voice-separate', 'subtitle-erase', 'videots')) {
+            $skillDir = Join-Path $claudeHome "skills/$skill-lychee"
+            if (-not (Test-Path -LiteralPath (Join-Path $skillDir "SKILL.md"))) {
+              throw "Skill $skill was not installed by PowerShell 7."
+            }
+          }
+          foreach ($cmd in @('lychee-set-key.md', 'lychee-doctor.md', 'tts-lychee-list-voices.md', 'tts-lychee-preview-match.md')) {
+            if (-not (Test-Path -LiteralPath (Join-Path $claudeHome "commands/$cmd"))) {
+              throw "Command $cmd was not installed by PowerShell 7."
+            }
+          }
+          Write-Host "OK: PowerShell 7 install verified"
