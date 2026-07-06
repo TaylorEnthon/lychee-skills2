@@ -14,6 +14,7 @@ jobs:
 
       - name: Install with bash
         run: |
+          export HOME="$RUNNER_TEMP/claude-bash"
           export CLAUDE_HOME="$RUNNER_TEMP/claude-bash"
           bash ./install.sh
           for skill in asr tts voice-clone voice-infer timbre-design speaker-classify voice-separate subtitle-erase videots video-compose; do
