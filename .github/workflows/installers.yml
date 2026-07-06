@@ -18,7 +18,9 @@ jobs:
           bash ./install.sh
           for skill in asr tts voice-clone voice-infer timbre-design speaker-classify voice-separate subtitle-erase videots video-compose; do
             test -f "$CLAUDE_HOME/skills/${skill}-lychee/SKILL.md" || (echo "Missing $skill" && exit 1)
-            test -f "$CLAUDE_HOME/skills/${skill}-lychee/scripts/"*.py || (echo "Missing $skill scripts" && exit 1)
+            if ! ls "$CLAUDE_HOME/skills/${skill}-lychee/scripts/"*.py >/dev/null 2>&1; then
+              echo "Missing $skill scripts" && exit 1
+            fi
           done
           for cmd in lychee-set-key.md lychee-doctor.md lychee-workflow.md tts-lychee-list-voices.md tts-lychee-preview-match.md; do
             test -f "$CLAUDE_HOME/commands/$cmd" || (echo "Missing command $cmd" && exit 1)
