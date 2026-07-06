@@ -61,7 +61,7 @@ $VoiceCode = @"
 import sys
 sys.path.insert(0, sys.argv[1])
 sys.path.insert(0, sys.argv[2])
-from tts_client import REQUIRED_VOICES, load_voice_data, resolve_voice_id
+from synthesize import REQUIRED_VOICES, load_voice_data, resolve_voice_id
 alias_map, presets, voice_aliases = load_voice_data()
 print('data JSON OK:', len(presets), 'presets,', len(alias_map), 'aliases,', len(voice_aliases), 'voice groups')
 print('required voices OK:', ', '.join(REQUIRED_VOICES))

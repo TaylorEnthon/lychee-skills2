@@ -1,5 +1,6 @@
 ---
 name: videots-lychee
+version: 1.0.0
 description: |
   调 lychee-openapi 的 SRT 字幕翻译接口 /open/videots/*，支持 translate / retranslate / back-translation。
   触发：用户说「翻译字幕」「/videots」「重译这段台词」「回译字幕」。

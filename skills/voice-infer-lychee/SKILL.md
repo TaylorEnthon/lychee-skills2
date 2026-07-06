@@ -1,5 +1,6 @@
 ---
 name: voice-infer-lychee
+version: 1.0.0
 description: |
   调 lychee-openapi 的语音推理接口 /open/voice/zeroshot/infer，用克隆音色合成语音元数据。
   触发：用户说「用克隆的音色合成」「推理语音」「/voice-infer」「speaker_id 推理」。

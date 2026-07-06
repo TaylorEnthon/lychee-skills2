@@ -1,5 +1,6 @@
 ---
 name: timbre-design-lychee
+version: 1.0.0
 description: |
   调 lychee-openapi 的音色设计接口 /open/timbre-design/generate，按性别/年龄/风格/口音生成试听音色。
   触发：用户说「设计音色」「生成新音色」「按 XX 风格生成」「/timbre-design」。

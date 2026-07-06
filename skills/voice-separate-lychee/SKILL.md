@@ -1,5 +1,6 @@
 ---
 name: voice-separate-lychee
+version: 1.0.0
 description: |
   调 lychee-openapi 的背景音与人声分离接口 /open/voice/separate，
   上传音频返回 vocals_url（人声）和 no_vocals_url（背景音）。

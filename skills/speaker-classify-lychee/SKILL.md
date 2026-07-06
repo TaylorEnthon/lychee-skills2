@@ -1,5 +1,6 @@
 ---
 name: speaker-classify-lychee
+version: 1.0.0
 description: |
   调 lychee-openapi 的公共说话人分类接口 /open/speaker-classify/*，
   上传音频返回说话人分段（每段：spk / content / start / end）。

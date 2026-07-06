@@ -1,5 +1,6 @@
 ---
 name: video-compose-lychee
+version: 1.0.0
 description: |
   调 lychee-openapi 的视频压制合成接口 /open/video-compose/tasks，异步处理视频、音频和字幕并返回下载地址。
   触发：用户说「视频压制」「音频合成」「字幕压制」「video-compose」。

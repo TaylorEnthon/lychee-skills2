@@ -22,7 +22,7 @@
 | --- | --- | --- | --- | --- |
 | 1. 克隆音色 | `voice-clone-lychee` | `python scripts/clone.py --file ./ref.wav --carry-back voice-replicate --output ./<wf>/01-clone.json` | `request_id`、`carry_back` | `./<wf>/01-clone.json` |
 | 2. 克隆音色推理 | `voice-infer-lychee` | `python scripts/infer.py --speaker-id <request_id> --text "任意文本" --output ./<wf>/02-infer.json` | `success`、`duration_seconds`、`speaker_id` | `./<wf>/02-infer.json` |
-| 3. 可选生成 MP3 | `tts-lychee` | `python scripts/tts_client.py --voice "默认女声" --text "任意文本" --output ./<wf>/03-output.mp3` | MP3 路径和命中的内置音色名 | `./<wf>/03-output.mp3` |
+| 3. 可选生成 MP3 | `tts-lychee` | `python scripts/synthesize.py --voice "默认女声" --text "任意文本" --output ./<wf>/03-output.mp3` | MP3 路径和命中的内置音色名 | `./<wf>/03-output.mp3` |
 
 ## 中间产物约定
 

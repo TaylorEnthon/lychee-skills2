@@ -1,5 +1,6 @@
 ---
 name: tts-lychee
+version: 1.0.0
 description: |
   调 lychee-openapi 的 TTS WebSocket 接口，文本合成 MP3 音频。
   触发：用户说「合成语音」「TTS」「朗读这段」「/tts-lychee」「用温柔女声说」。
@@ -22,9 +23,9 @@ description: |
 ## 用法
 
 ```bash
-python scripts/tts_client.py --text "你好，欢迎使用 lychee。"
-python scripts/tts_client.py --text "今天天气不错。" --voice "温柔女声" --output weather.mp3
-python scripts/tts_client.py --text "新闻播报。" --voice "播音男声" --speed 1.1 --volume 0.9
+python scripts/synthesize.py --text "你好，欢迎使用 lychee。"
+python scripts/synthesize.py --text "今天天气不错。" --voice "温柔女声" --output weather.mp3
+python scripts/synthesize.py --text "新闻播报。" --voice "播音男声" --speed 1.1 --volume 0.9
 python scripts/list_voices.py
 python scripts/preview_match.py "性感的女声"
 ```

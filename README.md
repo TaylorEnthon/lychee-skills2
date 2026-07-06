@@ -22,7 +22,7 @@ bash install.sh
 # 或手动：export LYCHEE_API_KEY=xxx
 
 # 3. 合成第一段 MP3
-python ~/.claude/skills/tts-lychee/scripts/tts_client.py --text "你好，这是 lychee 语音合成测试。" --output ./hello.mp3
+python ~/.claude/skills/tts-lychee/scripts/synthesize.py --text "你好，这是 lychee 语音合成测试。" --output ./hello.mp3
 ```
 
 成功会在 `./hello.mp3` 输出文件，屏幕打印 `{"success": true, ...}`。
@@ -32,7 +32,7 @@ python ~/.claude/skills/tts-lychee/scripts/tts_client.py --text "你好，这是
 文字转语音，选一个预设音色：
 
 ```bash
-python ~/.claude/skills/tts-lychee/scripts/tts_client.py \
+python ~/.claude/skills/tts-lychee/scripts/synthesize.py \
   --text "今天天气不错" --voice "温柔女声" --output ./weather.mp3
 ```
 

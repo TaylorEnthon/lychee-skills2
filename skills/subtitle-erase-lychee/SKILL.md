@@ -1,5 +1,6 @@
 ---
 name: subtitle-erase-lychee
+version: 1.0.0
 description: |
   调 lychee-openapi 的视频字幕擦除接口 /open/subtitle/erase，提交视频并返回擦除后结果。
   触发：用户说「擦除字幕」「去掉字幕」「/subtitle-erase」「字幕抹除」。

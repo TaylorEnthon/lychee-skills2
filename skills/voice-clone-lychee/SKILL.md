@@ -1,5 +1,6 @@
 ---
 name: voice-clone-lychee
+version: 1.0.0
 description: |
   调 lychee-openapi 的语音克隆接口 /open/voice/zeroshot/clone，上传参考音频生成克隆音色。
   触发：用户说「克隆这个声音」「用这个声音合成」「/voice-clone」「训练音色」。

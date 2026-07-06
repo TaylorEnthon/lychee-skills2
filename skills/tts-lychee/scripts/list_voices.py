@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from tts_client import configure_stdio, list_voices
+from synthesize import configure_stdio, list_voices
 
 
 if __name__ == "__main__":

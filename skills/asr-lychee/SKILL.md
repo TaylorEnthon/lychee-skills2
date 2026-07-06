@@ -1,5 +1,6 @@
 ---
 name: asr-lychee
+version: 1.0.0
 description: |
   调 lychee-openapi 的语音识别接口 /open/asr，上传音频文件返回识别文本。
   触发：用户说「转录音频」「把这段音频转文字」「识别这段语音」「ASR」「/asr-lychee」。

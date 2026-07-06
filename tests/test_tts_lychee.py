@@ -17,7 +17,7 @@ REQUIRED_FILES = [
     "install.ps1",
     "doctor.sh",
     "doctor.ps1",
-    "scripts/tts_client.py",
+    "scripts/synthesize.py",
 ]
 REQUIRED_VOICES = ["默认女声", "默认男声", "性感女声", "小男孩声音", "云南话男声"]
 
@@ -36,7 +36,7 @@ def test_skill_md_has_yaml_frontmatter(skill_dir):
 
 
 def test_script_help_runs(skill_dir):
-    assert_script_help(skill_dir, "tts_client.py", ["--text", "--voice"])
+    assert_script_help(skill_dir, "synthesize.py", ["--text", "--voice"])
 
 
 def test_doctor_runs_without_api_key(skill_dir, tmp_workspace_path, monkeypatch):
