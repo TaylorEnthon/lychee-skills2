@@ -70,16 +70,14 @@ def clone_voice(
     if not isinstance(result, dict):
         raise LycheeApiError(500, "voice clone response is not an object")
 
-    code = result.get("code")
-    if code not in (200, "200"):
-        raise LycheeApiError(
-            code,
-            str(result.get("message") or "voice clone failed"),
-            result.get("request_id"),
-        )
-    if not result.get("request_id"):
+    request_id = result.get("request_id") or result.get("requestId")
+    if not request_id:
         raise LycheeApiError(500, "voice clone response is missing request_id")
-    return result
+    return {
+        "request_id": request_id,
+        "speaker_id": result.get("speaker_id"),
+        "carry_back": result.get("carry_back"),
+    }
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:

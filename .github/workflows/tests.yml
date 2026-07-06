@@ -4,6 +4,13 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+    inputs:
+      quick:
+        description: "只跑 smoke test 跳过 contract test"
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   pytest:
