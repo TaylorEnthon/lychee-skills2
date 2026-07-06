@@ -234,6 +234,12 @@ lychee-skills2/
 
 每个 skill 子目录包含 `SKILL.md`、`scripts/`、`install.sh`、`install.ps1`、`doctor.sh` 和 `doctor.ps1`；安装时还会复制所需的 `shared/`，`tts-lychee` 另带 `data/` 音色数据。
 
+## 开发
+
+本地提交前建议运行 `python -m pytest -q`，当前完整测试不依赖 `LYCHEE_API_KEY`，不会请求真实后端。
+
+GitHub Actions 会在 push / PR 到 `main` 时运行 [.github/workflows/ci.yml](.github/workflows/ci.yml)，覆盖 Ubuntu、Windows 和 Python 3.9-3.12。skill CLI 输出格式见 [docs/output-schema.md](docs/output-schema.md)。
+
 ## 开发路线
 
 ### 最近完成
