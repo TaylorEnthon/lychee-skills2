@@ -15,14 +15,13 @@ jobs:
       - name: Install with bash
         env:
           HOME: ${{ runner.temp }}/claude-bash
-          CLAUDE_HOME: ${{ runner.temp }}/claude-bash
+          CLAUDE_HOME: ${{ runner.temp }}/claude-bash/.claude
         run: |
           echo "HOME=$HOME"
+          echo "CLAUDE_HOME=$CLAUDE_HOME"
           bash ./install.sh
-          echo "=== Check actual destination ==="
-          ls -la "$HOME/.claude/commands/" 2>&1 || echo "NOT FOUND: $HOME/.claude/commands/"
-          ls -la "$CLAUDE_HOME/commands/" 2>&1 || echo "NOT FOUND: $CLAUDE_HOME/commands/"
-          echo "=== Now run verification ==="
+          echo "=== Verify destination ==="
+          test -d "$CLAUDE_HOME/commands" || (echo "Missing dir: $CLAUDE_HOME/commands" && exit 1)
           for skill in asr tts voice-clone voice-infer timbre-design speaker-classify voice-separate subtitle-erase videots video-compose; do
             test -f "$CLAUDE_HOME/skills/${skill}-lychee/SKILL.md" || (echo "Missing $skill" && exit 1)
             if ! ls "$CLAUDE_HOME/skills/${skill}-lychee/scripts/"*.py >/dev/null 2>&1; then
