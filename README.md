@@ -72,7 +72,7 @@ Windows PowerShell 7：
 pwsh -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
-安装器会把 10 个 skill 复制到 `~/.claude/skills/`，并把两个跨 skill command 复制到 `~/.claude/commands/`。安装过程可重复运行；单个 skill 安装失败会显示 WARN，其余 skill 继续安装。
+安装器会把 10 个 skill 复制到 `~/.claude/skills/`，并把 3 个跨 skill command 复制到 `~/.claude/commands/`。安装过程可重复运行；单个 skill 安装失败会显示 WARN，其余 skill 继续安装。
 
 如只需一个 skill，也可运行 `skills/<name>-lychee/` 子目录中的 `install.sh` 或 `install.ps1`。
 
@@ -91,6 +91,14 @@ pwsh -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
 ```bash
 bash ~/.claude/skills/asr-lychee/doctor.sh
 ```
+
+## 组合使用
+
+lychee workflows 用自然语言把多个独立 skill 串成短链路，中间产物写到本地，适合字幕翻译、配音准备、视频压制这类需要多步协作的任务。
+
+当前内置 3 个 recipe：[short-drama-translate](docs/workflows/short-drama-translate.md)、[multi-speaker-dub](docs/workflows/multi-speaker-dub.md)、[voice-replicate](docs/workflows/voice-replicate.md)。它们只描述步骤和产物约定，不新增 Python 编排器。
+
+安装后可用 `/lychee-workflow short-drama-translate ./input.mp4` 这类命令启动组合流程。命令定义见 [commands/lychee-workflow.md](commands/lychee-workflow.md)，中间产物约定和 recipe 索引见 [docs/workflows/README.md](docs/workflows/README.md)。
 
 ## 仓库结构
 
