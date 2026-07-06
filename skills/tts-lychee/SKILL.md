@@ -25,9 +25,8 @@ description: |
 python scripts/tts_client.py --text "你好，欢迎使用 lychee。"
 python scripts/tts_client.py --text "今天天气不错。" --voice "温柔女声" --output weather.mp3
 python scripts/tts_client.py --text "新闻播报。" --voice "播音男声" --speed 1.1 --volume 0.9
-python scripts/tts_client.py --list-voices
-python scripts/tts_client.py --preview-match "性感的女声"
-python scripts/tts_client.py --doctor
+python scripts/list_voices.py
+python scripts/preview_match.py "性感的女声"
 ```
 
 ## 参数
@@ -40,9 +39,6 @@ python scripts/tts_client.py --doctor
 | `--speed` | `1.0` | 语速 |
 | `--volume` | `1.0` | 音量 |
 | `--timeout` | `90` | WebSocket 超时秒数 |
-| `--list-voices` | 关 | 按 category 分组列出可用音色，不合成 |
-| `--preview-match` | 无 | 预览描述匹配的音色，不合成 |
-| `--doctor` | 关 | 运行离线数据自检 |
 
 ## 音色规则
 
