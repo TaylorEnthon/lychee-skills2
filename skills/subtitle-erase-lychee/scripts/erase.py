@@ -5,7 +5,6 @@ import argparse
 import json
 import mimetypes
 import sys
-import time
 from pathlib import Path
 from typing import Any, Dict, Optional, Sequence
 
@@ -15,6 +14,7 @@ SHARED_DIR = Path(__file__).resolve().parents[1] / "shared"
 sys.path.insert(0, str(SHARED_DIR))
 from http_client import LycheeApiError, get_json, post_multipart
 from auth import MissingApiKeyError
+from errors import format_error
 from poll_status import poll_status
 
 SUPPORTED_SUFFIXES = {".mp4", ".mov"}
@@ -151,19 +151,19 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print(json.dumps(public_result, ensure_ascii=False))
         return 0
     except MissingApiKeyError as exc:
-        print(json.dumps({"success": False, "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+        print(json.dumps(format_error(exc, step="subtitle-erase", hint="运行 /lychee-set-key 配置 API key"), ensure_ascii=False), file=sys.stderr)
         return 2
     except ValueError as exc:
-        print(json.dumps({"success": False, "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+        print(json.dumps(format_error(exc, step="subtitle-erase"), ensure_ascii=False), file=sys.stderr)
         return 2
     except LycheeApiError as exc:
-        print(json.dumps({"success": False, "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+        print(json.dumps(format_error(exc, step="subtitle-erase"), ensure_ascii=False), file=sys.stderr)
         return 1
     except requests.RequestException as exc:
-        print(json.dumps({"success": False, "error": "网络请求失败: {}".format(exc)}, ensure_ascii=False), file=sys.stderr)
+        print(json.dumps(format_error(exc, step="subtitle-erase", hint="检查网络"), ensure_ascii=False), file=sys.stderr)
         return 1
     except OSError as exc:
-        print(json.dumps({"success": False, "error": "文件操作失败: {}".format(exc)}, ensure_ascii=False), file=sys.stderr)
+        print(json.dumps(format_error(exc, step="subtitle-erase", hint="检查文件路径和权限"), ensure_ascii=False), file=sys.stderr)
         return 2
 
 

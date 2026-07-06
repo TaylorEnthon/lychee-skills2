@@ -238,7 +238,7 @@ lychee-skills2/
 
 本地提交前建议运行 `python -m pytest -q`，当前完整测试不依赖 `LYCHEE_API_KEY`，不会请求真实后端。
 
-GitHub Actions 会在 push / PR 到 `main` 时运行 [.github/workflows/ci.yml](.github/workflows/ci.yml)，覆盖 Ubuntu、Windows 和 Python 3.9-3.12。skill CLI 输出格式见 [docs/output-schema.md](docs/output-schema.md)。
+GitHub Actions 会在 push / PR 到 `main` 时运行 [`.github/workflows/tests.yml`](.github/workflows/tests.yml) 和 [`.github/workflows/installers.yml`](.github/workflows/installers.yml),覆盖 Ubuntu、Windows 和 Python 3.9-3.12。skill CLI 输出格式见 [docs/output-schema.md](docs/output-schema.md),贡献指南见 [docs/development.md](docs/development.md),变更记录见 [CHANGELOG.md](CHANGELOG.md)。
 
 ## 开发路线
 

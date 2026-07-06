@@ -13,6 +13,7 @@ SHARED_DIR = Path(__file__).resolve().parents[1] / "shared"
 sys.path.insert(0, str(SHARED_DIR))
 from http_client import LycheeApiError, post_json
 from auth import MissingApiKeyError
+from errors import format_error
 
 LANG_CODES = ("zh", "en", "ja", "de", "fr", "es", "ko", "ar", "ru", "nl", "it", "pl", "pt", "vi", "id", "th")
 MAX_TEXT_LENGTH = 500
@@ -101,19 +102,19 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print(json.dumps(public_result, ensure_ascii=False))
         return 0
     except MissingApiKeyError as exc:
-        print(json.dumps({"success": False, "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+        print(json.dumps(format_error(exc, step="timbre-design", hint="运行 /lychee-set-key 配置 API key"), ensure_ascii=False), file=sys.stderr)
         return 2
     except ValueError as exc:
-        print(json.dumps({"success": False, "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+        print(json.dumps(format_error(exc, step="timbre-design"), ensure_ascii=False), file=sys.stderr)
         return 2
     except LycheeApiError as exc:
-        print(json.dumps({"success": False, "error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+        print(json.dumps(format_error(exc, step="timbre-design"), ensure_ascii=False), file=sys.stderr)
         return 1
     except requests.RequestException as exc:
-        print(json.dumps({"success": False, "error": "网络请求失败: {}".format(exc)}, ensure_ascii=False), file=sys.stderr)
+        print(json.dumps(format_error(exc, step="timbre-design", hint="检查网络"), ensure_ascii=False), file=sys.stderr)
         return 1
     except OSError as exc:
-        print(json.dumps({"success": False, "error": "文件操作失败: {}".format(exc)}, ensure_ascii=False), file=sys.stderr)
+        print(json.dumps(format_error(exc, step="timbre-design", hint="检查文件路径和权限"), ensure_ascii=False), file=sys.stderr)
         return 2
 
 
