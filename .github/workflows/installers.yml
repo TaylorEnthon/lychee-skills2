@@ -11,7 +11,7 @@ jobs:
     name: bash install
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install with bash
         env:
@@ -38,7 +38,7 @@ jobs:
     name: Windows PowerShell 5.1 install
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install with Windows PowerShell 5.1
         shell: powershell
@@ -68,7 +68,7 @@ jobs:
     name: PowerShell 7 install
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install with PowerShell 7
         shell: pwsh
