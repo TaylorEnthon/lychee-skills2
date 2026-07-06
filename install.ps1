@@ -41,5 +41,5 @@ if (Test-Path -LiteralPath $SourceHook) {
 }
 
 Write-Host "== 完成 =="
-Write-Host "已安装：9 个 skill + 2 个跨 skill command"
+Write-Host "已安装：10 个 skill + 2 个跨 skill command"
 Write-Host "运行 /lychee-doctor 自检；运行 /lychee-set-key 设置 API key"

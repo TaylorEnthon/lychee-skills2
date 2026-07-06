@@ -1,6 +1,6 @@
 # lychee-skills2
 
-一组面向 Claude Code 与兼容 AI 客户端的 lychee OpenAPI skills。项目把语音、音色、字幕和短剧翻译能力封装为 9 个独立 skill，并提供统一鉴权、一键安装和跨 skill 自检命令。
+一组面向 Claude Code 与兼容 AI 客户端的 lychee OpenAPI skills。项目把语音、音色、字幕和短剧翻译能力封装为 10 个独立 skill，并提供统一鉴权、一键安装和跨 skill 自检命令。
 
 每个 skill 都可独立安装，也可以通过根安装器一次装齐。
 
@@ -17,6 +17,7 @@
 | `voice-separate-lychee` | 异步分离人声和背景音 | `POST /open/voice/separate`、`GET /status` |
 | `subtitle-erase-lychee` | 异步擦除视频字幕 | `POST /open/subtitle/erase`、`GET /result` |
 | `videots-lychee` | SRT 翻译、重译、回译、状态和结果下载 | `/open/videots/*` |
+| `video-compose-lychee` | 视频+音频+字幕异步合成压制 | `POST /open/video-compose/tasks`、`GET /status` |
 
 ## 环境要求
 
@@ -46,10 +47,11 @@ npx -y skills add TaylorEnthon/lychee-skills2 \
   --skill tts-lychee \
   --skill voice-clone-lychee
 
-# 装全部 9 个（建议分 2-3 批，npx 工具对多 skill 的 clone 较慢且易断网）：
+# 装全部 10 个（建议分 2-3 批，npx 工具对多 skill 的 clone 较慢且易断网）：
 npx -y skills add TaylorEnthon/lychee-skills2 --skill asr-lychee --skill tts-lychee --skill voice-clone-lychee
 npx -y skills add TaylorEnthon/lychee-skills2 --skill voice-infer-lychee --skill timbre-design-lychee --skill speaker-classify-lychee
 npx -y skills add TaylorEnthon/lychee-skills2 --skill voice-separate-lychee --skill subtitle-erase-lychee --skill videots-lychee
+npx -y skills add TaylorEnthon/lychee-skills2 --skill video-compose-lychee
 ```
 
 `npx skills add` 自动从 `skills/<name>/` 拉文件安装到 `~/.claude/skills/<name>/`。
@@ -70,7 +72,7 @@ Windows PowerShell 7：
 pwsh -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
-安装器会把 9 个 skill 复制到 `~/.claude/skills/`，并把两个跨 skill command 复制到 `~/.claude/commands/`。安装过程可重复运行；单个 skill 安装失败会显示 WARN，其余 skill 继续安装。
+安装器会把 10 个 skill 复制到 `~/.claude/skills/`，并把两个跨 skill command 复制到 `~/.claude/commands/`。安装过程可重复运行；单个 skill 安装失败会显示 WARN，其余 skill 继续安装。
 
 如只需一个 skill，也可运行 `skills/<name>-lychee/` 子目录中的 `install.sh` 或 `install.ps1`。
 
@@ -113,7 +115,8 @@ lychee-skills2/
     ├── speaker-classify-lychee/
     ├── voice-separate-lychee/
     ├── subtitle-erase-lychee/
-    └── videots-lychee/
+    ├── videots-lychee/
+    └── video-compose-lychee/
 ```
 
 每个 skill 子目录包含 `SKILL.md`、`scripts/`、`install.sh`、`install.ps1`、`doctor.sh` 和 `doctor.ps1`；安装时还会复制所需的 `shared/`，`tts-lychee` 另带 `data/` 音色数据。
@@ -122,7 +125,7 @@ lychee-skills2/
 
 ### 第一阶段：独立 skills
 
-- [x] 9/9 skill 全部完成
+- [x] 10/10 skill 全部完成
 - [x] HTTP 与 WebSocket 公共客户端
 - [x] 单 skill 安装、自检与根一键安装
 - [x] API Key 配置和全量 doctor command

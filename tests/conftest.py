@@ -18,6 +18,7 @@ SKILLS = [
     "voice-separate-lychee",
     "subtitle-erase-lychee",
     "videots-lychee",
+    "video-compose-lychee",
 ]
 
 

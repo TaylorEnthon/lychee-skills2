@@ -18,8 +18,9 @@ asr-lychee: OK
 tts-lychee: OK
 voice-clone-lychee: OK
 voice-infer-lychee: OK
+video-compose-lychee: OK
 ...
-总结：9 OK / 0 ERROR
+总结：10 OK / 0 ERROR
 ```
 
 如果某个 skill 显示 ERROR，看对应的输出末尾 ERROR 行就知道是哪一项失败。
