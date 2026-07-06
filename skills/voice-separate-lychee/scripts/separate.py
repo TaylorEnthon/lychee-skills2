@@ -16,6 +16,7 @@ SHARED_DIR = Path(__file__).resolve().parents[1] / "shared"
 sys.path.insert(0, str(SHARED_DIR))
 from http_client import LycheeApiError, get_json, post_multipart
 from auth import MissingApiKeyError
+from poll_status import poll_status
 
 SUPPORTED_SUFFIXES = {".wav", ".mp3", ".m4a", ".aac", ".flac"}
 MAX_AUDIO_SIZE = 50 * 1024 * 1024
@@ -83,32 +84,26 @@ def submit(file_path: Path, srt_path: Optional[Path], timeout: float) -> Dict[st
 
 
 def poll_result(request_id: str, interval: float, timeout: float) -> Dict[str, Any]:
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        remaining = deadline - time.monotonic()
-        result = get_json(
+    def fetch() -> Dict[str, Any]:
+        return get_json(
             "/open/voice/separate/status",
             params={"request_id": request_id},
-            timeout=max(0.1, min(60.0, remaining)),
+            timeout=max(0.1, min(60.0, timeout)),
         )
-        if not isinstance(result, dict):
-            raise LycheeApiError(500, "voice separate status response is not an object", request_id)
 
-        status = result.get("status")
-        if status == "success":
-            return result
-        if status == "failed":
-            raise LycheeApiError(
-                500,
-                str(result.get("message") or "voice separate failed"),
-                request_id,
-            )
-
-        remaining = deadline - time.monotonic()
-        if remaining <= 0:
-            break
-        time.sleep(min(interval, remaining))
-    raise LycheeApiError(504, "voice separate polling timeout", request_id)
+    return poll_status(
+        fetch,
+        interval=interval,
+        timeout=timeout,
+        success_states=("success",),
+        error_states=("failed",),
+        error_field="message",
+        default_error="voice separate failed",
+        timeout_error="voice separate polling timeout",
+        response_error="voice separate status response is not an object",
+        request_id_field="request_id",
+        request_id=request_id,
+    )
 
 
 def write_output(path: Optional[Path], result: Dict[str, Any]) -> None:

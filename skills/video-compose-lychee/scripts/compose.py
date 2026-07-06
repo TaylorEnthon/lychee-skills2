@@ -16,6 +16,7 @@ SHARED_DIR = Path(__file__).resolve().parents[1] / "shared"
 sys.path.insert(0, str(SHARED_DIR))
 from http_client import LycheeApiError, get_json, post_multipart
 from auth import MissingApiKeyError
+from poll_status import poll_status
 
 MAX_VIDEO_SIZE = 1024 * 1024 * 1024
 MAX_AUDIO_SIZE = 200 * 1024 * 1024
@@ -136,34 +137,27 @@ def submit(args: argparse.Namespace) -> Dict[str, Any]:
 
 
 def poll_result(task_id: str, interval: float, timeout: float) -> Dict[str, Any]:
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        remaining = deadline - time.monotonic()
-        result = get_json(
+    def fetch() -> Dict[str, Any]:
+        return get_json(
             "/open/video-compose/status",
             params={"task_id": task_id},
-            timeout=max(0.1, min(60.0, remaining)),
+            timeout=max(0.1, min(60.0, timeout)),
         )
-        if not isinstance(result, dict):
-            raise LycheeApiError(500, "video compose status response is not an object", task_id)
 
-        status = result.get("status")
-        if status == "completed":
-            return result
-        if status == "failed":
-            raise LycheeApiError(
-                500,
-                str(result.get("errorMessage") or "video compose failed"),
-                task_id,
-            )
-        if status != "pending":
-            raise LycheeApiError(500, "unknown video compose status: {}".format(status), task_id)
-
-        remaining = deadline - time.monotonic()
-        if remaining <= 0:
-            break
-        time.sleep(min(interval, remaining))
-    raise LycheeApiError(504, "video compose polling timeout", task_id)
+    return poll_status(
+        fetch,
+        interval=interval,
+        timeout=timeout,
+        success_states=("completed",),
+        error_states=("failed",),
+        error_field="errorMessage",
+        default_error="video compose failed",
+        timeout_error="video compose polling timeout",
+        response_error="video compose status response is not an object",
+        request_id_field="task_id",
+        request_id=task_id,
+        pending_states=("pending",),
+    )
 
 
 def download_file(url: str, path: Path, timeout: float) -> None:

@@ -15,6 +15,7 @@ SHARED_DIR = Path(__file__).resolve().parents[1] / "shared"
 sys.path.insert(0, str(SHARED_DIR))
 from http_client import LycheeApiError, get_json, post_multipart
 from auth import MissingApiKeyError
+from poll_status import poll_status
 
 SUPPORTED_SUFFIXES = {
     ".3gp", ".3gpp", ".aac", ".aif", ".aiff", ".alac", ".amr", ".ape",
@@ -72,32 +73,26 @@ def submit(file_path: Path, timeout: float) -> Dict[str, Any]:
 
 
 def poll_result(request_id: str, interval: float, timeout: float) -> Dict[str, Any]:
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        remaining = deadline - time.monotonic()
-        result = get_json(
+    def fetch() -> Dict[str, Any]:
+        return get_json(
             "/open/speaker-classify/status",
             params={"request_id": request_id},
-            timeout=max(0.1, min(60.0, remaining)),
+            timeout=max(0.1, min(60.0, timeout)),
         )
-        if not isinstance(result, dict):
-            raise LycheeApiError(500, "speaker classify status response is not an object", request_id)
 
-        status = result.get("status")
-        if status == "success":
-            return result
-        if status == "error":
-            raise LycheeApiError(
-                500,
-                str(result.get("error") or "speaker classify failed"),
-                request_id,
-            )
-
-        remaining = deadline - time.monotonic()
-        if remaining <= 0:
-            break
-        time.sleep(min(interval, remaining))
-    raise LycheeApiError(504, "speaker classify polling timeout", request_id)
+    return poll_status(
+        fetch,
+        interval=interval,
+        timeout=timeout,
+        success_states=("success",),
+        error_states=("error",),
+        error_field="error",
+        default_error="speaker classify failed",
+        timeout_error="speaker classify polling timeout",
+        response_error="speaker classify status response is not an object",
+        request_id_field="request_id",
+        request_id=request_id,
+    )
 
 
 def write_output(path: Optional[Path], result: Dict[str, Any]) -> None:

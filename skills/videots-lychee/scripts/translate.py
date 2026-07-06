@@ -16,6 +16,7 @@ SHARED_DIR = Path(__file__).resolve().parents[1] / "shared"
 sys.path.insert(0, str(SHARED_DIR))
 from http_client import BASE_URL, LycheeApiError, get_json, post_multipart
 from auth import API_KEY_HEADER, MissingApiKeyError, get_api_key
+from poll_status import poll_status
 
 MAX_SRT_SIZE = 1024 * 1024
 ACTIONS = ("translate", "retranslate", "back-translation")
@@ -165,30 +166,26 @@ def task_id_from(result: Dict[str, Any]) -> Optional[str]:
 
 
 def poll_result(task_id: str, interval: float, timeout: float) -> Dict[str, Any]:
-    deadline = time.monotonic() + timeout
-    while time.monotonic() < deadline:
-        remaining = deadline - time.monotonic()
-        result = get_json(
+    def fetch() -> Dict[str, Any]:
+        return get_json(
             "/open/videots/status",
             params={"task_id": task_id},
-            timeout=max(0.1, min(60.0, remaining)),
+            timeout=max(0.1, min(60.0, timeout)),
         )
-        if not isinstance(result, dict):
-            raise LycheeApiError(500, "videots status response is not an object", task_id)
-        status = result.get("status")
-        if status == "completed":
-            return result
-        if status in ("failed", "error"):
-            raise LycheeApiError(
-                500,
-                str(result.get("message") or result.get("error") or "videots failed"),
-                task_id,
-            )
-        remaining = deadline - time.monotonic()
-        if remaining <= 0:
-            break
-        time.sleep(min(interval, remaining))
-    raise LycheeApiError(504, "videots polling timeout", task_id)
+
+    return poll_status(
+        fetch,
+        interval=interval,
+        timeout=timeout,
+        success_states=("completed",),
+        error_states=("failed", "error"),
+        error_field=("message", "error"),
+        default_error="videots failed",
+        timeout_error="videots polling timeout",
+        response_error="videots status response is not an object",
+        request_id_field="task_id",
+        request_id=task_id,
+    )
 
 
 def download_result(task_id: str, output_path: Path, timeout: float) -> None:
