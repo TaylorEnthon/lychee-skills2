@@ -16,14 +16,14 @@ jobs:
         run: |
           export CLAUDE_HOME="$RUNNER_TEMP/claude-bash"
           bash ./install.sh
-          for skill in asr tts voice-clone voice-infer timbre-design speaker-classify voice-separate subtitle-erase videots; do
+          for skill in asr tts voice-clone voice-infer timbre-design speaker-classify voice-separate subtitle-erase videots video-compose; do
             test -f "$CLAUDE_HOME/skills/${skill}-lychee/SKILL.md" || (echo "Missing $skill" && exit 1)
             test -f "$CLAUDE_HOME/skills/${skill}-lychee/scripts/"*.py || (echo "Missing $skill scripts" && exit 1)
           done
-          for cmd in lychee-set-key.md lychee-doctor.md tts-lychee-list-voices.md tts-lychee-preview-match.md; do
+          for cmd in lychee-set-key.md lychee-doctor.md lychee-workflow.md tts-lychee-list-voices.md tts-lychee-preview-match.md; do
             test -f "$CLAUDE_HOME/commands/$cmd" || (echo "Missing command $cmd" && exit 1)
           done
-          echo "OK: bash install verified all 9 skills + 4 commands"
+          echo "OK: bash install verified all 10 skills + 5 commands"
 
   windows-ps5:
     name: Windows PowerShell 5.1 install
@@ -42,13 +42,13 @@ jobs:
             throw "install.ps1 failed with exit code $LASTEXITCODE"
           }
           $claudeHome = Join-Path $userProfile ".claude"
-          foreach ($skill in @('asr', 'tts', 'voice-clone', 'voice-infer', 'timbre-design', 'speaker-classify', 'voice-separate', 'subtitle-erase', 'videots')) {
+          foreach ($skill in @('asr', 'tts', 'voice-clone', 'voice-infer', 'timbre-design', 'speaker-classify', 'voice-separate', 'subtitle-erase', 'videots', 'video-compose')) {
             $skillDir = Join-Path $claudeHome "skills/$skill-lychee"
             if (-not (Test-Path -LiteralPath (Join-Path $skillDir "SKILL.md"))) {
               throw "Skill $skill was not installed."
             }
           }
-          foreach ($cmd in @('lychee-set-key.md', 'lychee-doctor.md', 'tts-lychee-list-voices.md', 'tts-lychee-preview-match.md')) {
+          foreach ($cmd in @('lychee-set-key.md', 'lychee-doctor.md', 'lychee-workflow.md', 'tts-lychee-list-voices.md', 'tts-lychee-preview-match.md')) {
             if (-not (Test-Path -LiteralPath (Join-Path $claudeHome "commands/$cmd"))) {
               throw "Command $cmd was not installed."
             }
@@ -72,13 +72,13 @@ jobs:
             throw "install.ps1 failed with exit code $LASTEXITCODE"
           }
           $claudeHome = Join-Path $userProfile ".claude"
-          foreach ($skill in @('asr', 'tts', 'voice-clone', 'voice-infer', 'timbre-design', 'speaker-classify', 'voice-separate', 'subtitle-erase', 'videots')) {
+          foreach ($skill in @('asr', 'tts', 'voice-clone', 'voice-infer', 'timbre-design', 'speaker-classify', 'voice-separate', 'subtitle-erase', 'videots', 'video-compose')) {
             $skillDir = Join-Path $claudeHome "skills/$skill-lychee"
             if (-not (Test-Path -LiteralPath (Join-Path $skillDir "SKILL.md"))) {
               throw "Skill $skill was not installed by PowerShell 7."
             }
           }
-          foreach ($cmd in @('lychee-set-key.md', 'lychee-doctor.md', 'tts-lychee-list-voices.md', 'tts-lychee-preview-match.md')) {
+          foreach ($cmd in @('lychee-set-key.md', 'lychee-doctor.md', 'lychee-workflow.md', 'tts-lychee-list-voices.md', 'tts-lychee-preview-match.md')) {
             if (-not (Test-Path -LiteralPath (Join-Path $claudeHome "commands/$cmd"))) {
               throw "Command $cmd was not installed by PowerShell 7."
             }
