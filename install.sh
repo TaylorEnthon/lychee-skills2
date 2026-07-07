@@ -34,5 +34,5 @@ if [ -d "$HERE/.githooks" ] && [ -d "$HERE/.git" ]; then
 fi
 
 echo "== 完成 =="
-echo "已安装：10 个 skill + 3 个跨 skill command"
+echo "已安装：10 个 skill + 4 个跨 skill command"
 echo "运行 /lychee-doctor 自检；运行 /lychee-set-key 设置 API key"

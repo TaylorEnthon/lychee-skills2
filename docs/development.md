@@ -65,6 +65,60 @@ description: |
 
 `name` 必须用 `<name>-lychee` 后缀,`description` 第一行说"做什么",第二行起列"触发词"。
 
+### SKILL.md 推荐章节(对照 addyosmani/agent-skills 模板)
+
+新 skill 推荐包含以下章节(已有 skill 增补即可,无需重写):
+
+```markdown
+# <Skill 名>
+
+## 用法
+
+(命令示例,直接复制可跑)
+
+## 参数
+
+(表格或列表)
+
+## 输出
+
+(stdout JSON 示例)
+
+## 退出码
+
+(0/1/2)
+
+## When to use
+
+(用户自然语言说法,跟 description 触发词对应)
+
+## Process
+
+(本 skill 的内部步骤,sub-skill / script 调用顺序)
+
+## Red flags
+
+(运行后哪些征兆表示错了:返回空对象/超时但是 1xx/字段全是 None)
+
+## Verification
+
+(如何知道成功了:文件存在 + 大小 > 0 + mp3 可播放 / 输出 JSON success=true)
+```
+
+### references/ 子目录(可选)
+
+长文档 / FAQ / 维护备忘 / 域知识放 `skills/<name>/references/`。SKILL.md 只写"是什么 + 怎么用",references 写"背景 + 已知坑"。
+
+**何时加**(经验法则,不要先加):
+
+- 长文档没法装进 SKILL.md(>300 行)
+- 跨多个调用方共享的横向材料(对照 / checklist)
+- 域知识(如 tts 音色命名约定)
+
+**何时不加**:只有一个调用方 / 内容短 / 改了 SKILL.md 反而要同步多个文件。
+
+`tts-lychee/references/voicing-notes.md` 是当前仓库里的样板。
+
 ### 脚本命名约定
 
 `scripts/<verb>.py` — 用动词:`asr.py` / `translate.py` / `compose.py` / `erase.py` / `infer.py` / `clone.py` / `design.py` / `classify.py` / `separate.py` / `synthesize.py`。

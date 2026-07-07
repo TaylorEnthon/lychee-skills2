@@ -30,6 +30,43 @@ python scripts/list_voices.py
 python scripts/preview_match.py "性感的女声"
 ```
 
+## When to use
+
+直接调一次合成(单条文本 → 一个 MP3)。批量合成、克隆音色后合成、多步转码,改用 `/lychee-workflow`。
+
+## Process
+
+1. 读环境变量 `LYCHEE_API_KEY`(fallback `TTS_API_KEY`)
+2. 校验文本长度 ≤ 5000 + 音量/速度 > 0
+3. 解析 `--voice`:别名 / preset / 关键词规则多层匹配(顺序见 `references/voicing-notes.md`)
+4. base64 解 `preset.speaker_ref` 得后端 speaker_id
+5. WS 连 `tts_synthesize()`,接收二进制 MP3
+6. 写文件 + stdout JSON `{"success": true, "output": "...", "voice": "<name>"}`
+
+## Red flags
+
+- 文件大小 < 1KB:**失败**,WS 半截收到。
+- 退出码 2 + stderr `step: tts`:API key 没设,**不要重试**,让用户跑 `/lychee-set-key`。
+- 输出 JSON 没有 `voice` 字段:音色匹配错了(查 stderr 错误,通常是 `match_mode: exact` 不被命中)。
+- `--list-voices` 没用:这个 flag 不存在,用户应该用 `/tts-lychee-list-voices` 或 `scripts/list_voices.py`。
+
+## Verification
+
+合成成功:
+
+- 退出码 0
+- stdout 末行是 `{"success": true, "output": "<mp3 路径>", "voice": "<音色名>"}`
+- 输出文件存在 + 大小 > 1KB + 文件头是 `ID3` 或 `\xff\xfb` (MP3 magic)
+- `mp3` 可用 `ffprobe`/`ffmpeg` 播放测试时长 > 0
+
+快速验证命令:
+
+```bash
+# 跑 synthesis + 检查文件
+python scripts/synthesize.py --text "test" --output ./test.mp3
+ls -la ./test.mp3  # 应该 > 1KB
+```
+
 ## 参数
 
 | 参数 | 默认值 | 说明 |
