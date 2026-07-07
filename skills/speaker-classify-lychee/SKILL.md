@@ -51,6 +51,40 @@ python scripts/classify.py --file ./meeting.wav --output ./result.json
 
 使用 `--no-wait` 时只提交任务；之后需自行用返回的 `request_id` 查询 `/open/speaker-classify/status`。
 
+## When to use
+
+识别一段多人对话音频里**每个说话人是谁**以及每段对应的文本。常用于多角色配音前的"谁说了哪句话"分析。
+
+## Process
+
+1. 读 `--file`,校验存在 + 24 种格式之一 + ≤50MB + 时长 1s-10min
+2. 读 `LYCHEE_API_KEY`,multipart POST 到 `/open/speaker-classify/submit` → `request_id`
+3. 默认轮询 `/open/speaker-classify/status`,`status=success` 才返
+4. 解包 `data.spk_result`(数组,每段含 `spk` / `content` / `start` / `end`)
+5. stdout JSON
+
+## Red flags
+
+- `spk_result` 是空数组:只检测到 1 个说话人或音频太纯
+- `duration_ms` 远大于音频实际时长:音频被切分多次,正常
+- 退出码 1 + status=timeout:长音频,`--timeout` 默认 300 秒不够,加大
+
+## Verification
+
+成功:
+
+- 退出码 0
+- stdout `{"success": true, "request_id": "...", "spk_result": [{"spk": "spk_0", ...}, ...]}`
+- `spk_result` 是数组,每段含 `spk` + `content` + `start` + `end`
+- `duration_ms > 0`
+
+快速验证:
+
+```bash
+python scripts/classify.py --file ./dialog.wav --output ./result.json
+jq '.spk_result | length' ./result.json  # 应该 ≥ 1
+```
+
 ## 环境变量与错误
 
 设置 `LYCHEE_API_KEY`，也兼容 `TTS_API_KEY`。运行 `doctor.sh` 或 `doctor.ps1` 可检查 Python、`requests`、共享客户端和 HTTP 服务。

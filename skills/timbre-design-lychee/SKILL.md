@@ -56,3 +56,37 @@ python scripts/design.py --text "Hello from the new voice." --lang en --gender 2
 ```json
 {"success": true, "audioUrl": "http://...", "requestId": "<uuid>"}
 ```
+
+## When to use
+
+按描述(性别/年龄/口音/风格)生成**试听**音色,**不能直接合成文本**。试听满意后用户需自行选择 preset 路径(`tts-lychee` 的内置音色)。
+
+## Process
+
+1. 读 `--text`/`--lang`/`--gender`(1/2)/`--age`(1-4)/`--pitch`/`--style`/`--accent`
+2. 校验文本非空、性别在 {1, 2}、lang 在支持列表
+3. 读 `LYCHEE_API_KEY`,构造 JSON body
+4. POST 到 `/open/timbre-design/generate`(服务端内部轮询,客户端只发 1 次)
+5. 解包 data:`audioUrl`(试听 URL)、`requestId`、`outputDir`
+6. stdout JSON(camelCase!),失败抛 LycheeApiError
+
+## Red flags
+
+- `audioUrl` 空字符串或缺失:后端生成失败(可能风格/口音组合不支持)
+- 退出码 1 + 退出 504:`--timeout 180` 不够,服务端内部最多轮询 120 秒
+- `requestId` 为 null:成功路径上不应出现,可能脚本解析错
+
+## Verification
+
+成功:
+
+- 退出码 0
+- stdout `{"success": true, "audioUrl": "<http url>", "requestId": "<uuid>"}`
+- `audioUrl` 可下载(curl 200)
+
+快速验证:
+
+```bash
+python scripts/design.py --text "示例" --lang zh --gender 2 --age 2 --output ./design.json
+curl -I "$(jq -r .audioUrl ./design.json)"  # 200
+```

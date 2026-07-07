@@ -77,3 +77,39 @@ python scripts/compose.py --video-file ./video.mp4 --audio-file ./dub.mp3 --subt
 ```
 
 设置 `LYCHEE_API_KEY`，也兼容 `TTS_API_KEY`。
+
+## When to use
+
+上传一段 mp4 视频,可选叠加音频(配音)或字幕,异步处理后下载压制成片。3 种用法:纯视频压制、音频合成、字幕压制、两者叠加。耗时较长(默认 600 秒)。
+
+## Process
+
+1. 读 `--video-file`(必,mp4 ≤1GB)、可选 `--audio-file`(≤200MB)、`--subtitle-file`(≤10MB)
+2. 校验文件大小、5 字幕位置参数必须全传或全不传
+3. 校验 `--subtitle-file` 必带 `--target-language`
+4. 读 `LYCHEE_API_KEY`,multipart POST 到 `/open/video-compose/tasks` → `task_id`(后端兼容 `taskId`)
+5. 默认轮询 `/open/video-compose/status`,`status=completed` 才返
+6. stdout JSON `{"success": true, "task_id": "...", "status": "completed", "result_path": "<url>"}`
+
+## Red flags
+
+- 退出码 2 + "5 个字幕位置参数必须同时传":只能全传或全不传
+- 退出码 2 + "传 --subtitle-file 时必须同时传 --target-language":字幕必带语言
+- `result_path` 完成时空字符串:后端成功但没产出文件,看服务端
+- 退出码 1 + status=timeout:600 秒不够(2 小时长视频),加大
+
+## Verification
+
+成功:
+
+- 退出码 0
+- stdout `{"success": true, "task_id": "...", "status": "completed", "result_path": "<http url>"}`
+- `--download-output ./out.mp4` 时文件存在 + 可播放(ffprobe)
+
+快速验证:
+
+```bash
+python scripts/compose.py --video-file ./video.mp4 --output ./result.json
+cat ./result.json  # 看 task_id 和 status
+ffprobe ./downloaded.mp4  # 视频时长 > 0
+```

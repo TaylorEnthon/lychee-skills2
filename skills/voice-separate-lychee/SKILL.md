@@ -50,6 +50,40 @@ python scripts/separate.py --file ./song.wav --output ./result.json
 
 服务端成功但没有 `result` 时，两个 URL 输出为空字符串。使用 `--no-wait` 时只提交任务，之后需自行用返回的 `request_id` 查询 `/open/voice/separate/status`。
 
+## When to use
+
+把人声和背景音/伴奏分成两轨,常用于翻唱、二次配音、音轨分析。
+
+## Process
+
+1. 读 `--file`,校验存在 + wav/mp3/m4a/aac/flac + ≤50MB + ≤600s
+2. 可选 `--srt` 字幕(辅助分离准确度)
+3. 读 `LYCHEE_API_KEY`,POST 到 `/open/voice/separate` → `request_id`
+4. 默认轮询 `/open/voice/separate/status`,`status=success` 才返
+5. 解包 `data.vocals_url` / `data.no_vocals_url`
+6. stdout JSON,失败抛 LycheeApiError
+
+## Red flags
+
+- `vocals_url` 和 `no_vocals_url` 都空字符串:分离结果无 value,可能后端失败
+- 退出码 1 + "连接被拒绝":后端服务暂时不可用
+
+## Verification
+
+成功:
+
+- 退出码 0
+- stdout `{"success": true, "request_id": "...", "vocals_url": "<url>", "no_vocals_url": "<url>"}`
+- 两个 URL 都可下载(curl -I 200)
+
+快速验证:
+
+```bash
+python scripts/separate.py --file ./song.mp3 --output ./result.json
+curl -I "$(jq -r .vocals_url ./result.json)"      # 200
+curl -I "$(jq -r .no_vocals_url ./result.json)"  # 200
+```
+
 ## 环境变量与错误
 
 设置 `LYCHEE_API_KEY`，也兼容 `TTS_API_KEY`。运行 `doctor.sh` 或 `doctor.ps1` 可检查 Python、`requests`、共享客户端和 HTTP 服务。

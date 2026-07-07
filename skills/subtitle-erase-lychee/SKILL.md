@@ -51,3 +51,35 @@ python scripts/erase.py --file ./video.mp4 --output ./result.json
 服务端在任务成功后按视频时长异步扣费，客户端不计算或重复扣费。请避免对同一视频重复提交。
 
 设置 `LYCHEE_API_KEY`，也兼容 `TTS_API_KEY`。文件或参数错误返回退出码 2；API、网络、任务失败或轮询超时返回退出码 1。字幕擦除耗时较长，必要时增大 `--timeout`。
+
+## When to use
+
+把视频硬字幕抹掉(常用于翻拍、二次制作);或纯字幕清洗。耗时较长,默认 600 秒。
+
+## Process
+
+1. 读 `--file`(mp4/mov, ≤2GB)、可选 `--name`/`--language-code`/`--subtitle-mode`(1-3)
+2. 读 `LYCHEE_API_KEY`,multipart POST 到 `/open/subtitle/erase` → `project_id`
+3. 默认轮询 `/open/subtitle/erase/result`,`status=success` 才返
+4. stdout 透传后端 result + 加 `success: true`、`project_id`、`status: "success"`
+
+## Red flags
+
+- `subtitle-mode` 1/2/3 选错:导致擦不干净或擦太多
+- `language-code` 错:模型识别不到字幕区
+- 退出码 1 + status=timeout:600 秒不够(2 小时长视频),加大
+
+## Verification
+
+成功:
+
+- 退出码 0
+- stdout 含 `project_id` + `status: "success"` + 后端 result(第三方原始字段)
+- 第三方 result 中的输出 video URL 可下载
+
+快速验证:
+
+```bash
+python scripts/erase.py --file ./video.mp4 --output ./erase.json
+jq '. | keys' ./erase.json  # 看第三方返回了什么字段
+```

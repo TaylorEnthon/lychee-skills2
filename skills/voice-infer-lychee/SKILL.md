@@ -56,3 +56,38 @@ python scripts/infer.py --text "测试。" --speaker-id "<request_id>" --output 
 ```json
 {"success": true, "code": 200, "duration_seconds": 3.45, "speaker_id": "<request_id>"}
 ```
+
+## When to use
+
+用已克隆的声纹对一段参考音频做推理/评估;或长文本按 speaker_id 批量推理。**当前接口返回算法元数据**(不返回 MP3),需要 MP3 输出请用 `tts-lychee` 的内置音色或已配 preset。
+
+## Process
+
+1. 读 `--speaker-id`(从 voice-clone-lychee 的 `request_id` 来)、`--text`、`--audio`(可选参考音频)
+2. 校验文本非空、speed/volume > 0、sample-rate > 0
+3. 校验 ref-text 长度匹配 audio 时长(后端要求)
+4. 读 `LYCHEE_API_KEY`,POST JSON 到 `/open/voice/zeroshot/infer`
+5. 解包 data 中的算法输出 + `duration_seconds`
+6. stdout JSON,失败抛 LycheeApiError
+
+## Red flags
+
+- `duration_seconds` 为 0 或缺失:后端计算失败,可能 ref_text 不匹配 audio
+- 退出码 1 + 422:`--ref-text` 和 `--audio` 时长不匹配
+- `speaker_id` 传入字符串但后端返 404:可能 id 已过期或未克隆,先重跑 clone
+- 退出码 1 + 401:API key 无效
+
+## Verification
+
+成功:
+
+- 退出码 0
+- stdout `{"success": true, "code": 200, "duration_seconds": <float>, "speaker_id": "<uuid>"}`
+- `duration_seconds > 0`(否则后端拒绝)
+
+快速验证:
+
+```bash
+python scripts/infer.py --speaker-id "<request_id>" --text "测试一句" --output ./infer.json
+cat ./infer.json  # code=200, duration_seconds > 0
+```
