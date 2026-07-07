@@ -1,0 +1,47 @@
+{
+  "name": "lychee-skills2",
+  "version": "1.0.0",
+  "description": "10 个 lychee OpenAPI skills:语音合成与识别、音色克隆与设计、说话人识别、人声分离、字幕擦除与翻译、视频压制合成。",
+  "author": {
+    "name": "TaylorEnthon"
+  },
+  "homepage": "https://github.com/TaylorEnthon/lychee-skills2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/TaylorEnthon/lychee-skills2.git"
+  },
+  "license": "MIT",
+  "keywords": [
+    "lychee",
+    "tts",
+    "asr",
+    "voice-clone",
+    "voice-infer",
+    "timbre-design",
+    "speaker-classify",
+    "voice-separate",
+    "subtitle-erase",
+    "videots",
+    "video-compose"
+  ],
+  "skills": [
+    "asr-lychee",
+    "tts-lychee",
+    "voice-clone-lychee",
+    "voice-infer-lychee",
+    "timbre-design-lychee",
+    "speaker-classify-lychee",
+    "voice-separate-lychee",
+    "subtitle-erase-lychee",
+    "videots-lychee",
+    "video-compose-lychee"
+  ],
+  "commands": [
+    "lychee-set-key",
+    "lychee-doctor",
+    "lychee-workflow",
+    "lychee-evals",
+    "tts-lychee-list-voices",
+    "tts-lychee-preview-match"
+  ]
+}
