@@ -84,13 +84,14 @@ def validate_args(args: argparse.Namespace) -> None:
         raise ValueError("字幕位置参数必须 5 个同时传；缺少: {}".format(", ".join("--" + item.replace("_", "-") for item in missing)))
     if args.subtitle_font_size is not None and not 12 <= args.subtitle_font_size <= 96:
         raise ValueError("--subtitle-font-size 必须在 12-96 之间")
-    if args.interval <= 0:
+    if getattr(args, "interval", 1) <= 0:
         raise ValueError("--interval 必须大于 0")
     if args.timeout <= 0:
         raise ValueError("--timeout 必须大于 0")
 
 
 def submit(args: argparse.Namespace) -> Dict[str, Any]:
+    validate_args(args)
     data = {
         key: value
         for key, value in {
