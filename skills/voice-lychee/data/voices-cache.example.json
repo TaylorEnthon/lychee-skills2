@@ -1,0 +1,14 @@
+{
+  "updated_at": "2026-07-13T14:00:00Z",
+  "voices": [
+    {
+      "id": "1",
+      "name": "Vivi 2.0",
+      "description": "通用场景",
+      "type": "builtin",
+      "gender": "female",
+      "lang_code": null
+    }
+  ]
+}
+

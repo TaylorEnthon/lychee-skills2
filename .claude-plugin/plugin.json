@@ -1,7 +1,7 @@
 {
   "name": "lychee-skills2",
   "version": "1.0.0",
-  "description": "10 个 lychee OpenAPI skills:语音合成与识别、音色克隆与设计、说话人识别、人声分离、字幕擦除与翻译、视频压制合成。",
+  "description": "11 个 lychee OpenAPI skills:语音合成与识别、同步 AI 配音、音色克隆与设计、说话人识别、人声分离、字幕擦除与翻译、视频压制合成。",
   "author": {
     "name": "TaylorEnthon"
   },
@@ -14,6 +14,7 @@
   "keywords": [
     "lychee",
     "tts",
+    "ai-voice",
     "asr",
     "voice-clone",
     "voice-infer",
@@ -27,6 +28,7 @@
   "skills": [
     "asr-lychee",
     "tts-lychee",
+    "voice-lychee",
     "voice-clone-lychee",
     "voice-infer-lychee",
     "timbre-design-lychee",

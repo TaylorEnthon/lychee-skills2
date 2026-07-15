@@ -18,7 +18,7 @@ lychee-skills2/
 │   └── errors.py                  统一错误 JSON schema
 ├── commands/                      跨 skill slash command(lychee-set-key / lychee-doctor / lychee-workflow)
 ├── docs/                          文档(workflows / output-schema.md 等)
-├── skills/                        10 个 skill
+├── skills/                        11 个 skill
 │   └── <name>-lychee/
 │       ├── SKILL.md               Claude 读取的指令(frontmatter + markdown)
 │       ├── scripts/<verb>.py      主入口脚本
@@ -26,7 +26,7 @@ lychee-skills2/
 │       ├── doctor.sh / .ps1       skill 自检
 │       └── (tts-lychee) data/     音色预设
 └── tests/                         pytest 测试
-    ├── conftest.py                路径常量 + 10 个 skill 的 parametrize
+    ├── conftest.py                路径常量 + 11 个 skill 的 parametrize
     ├── helpers.py                 smoke test 工具
     ├── run_tests.sh               52 个 smoke test(pre-commit 跑)
     ├── test_<skill>_lychee.py     每个 skill 一个 smoke test 文件
@@ -249,7 +249,7 @@ bash tests/run_tests.sh
 GitHub Actions 跑 3 个 workflow(`.github/workflows/`):
 
 - **Tests** — 跨 Ubuntu/Windows × Python 3.9-3.12,跑 `python -m pytest -q`
-- **Installers** — 装 10 个 skill + 5 个 command 到 `$RUNNER_TEMP`,验证文件齐全
+- **Installers** — 装 11 个 skill + command 到 `$RUNNER_TEMP`,验证文件齐全
 - ~~CI(已删,和 Tests 重复)~~
 
 pre-commit hook 在 `.githooks/pre-commit`,装到 `.git/hooks/`(install.sh 装):

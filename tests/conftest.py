@@ -11,6 +11,7 @@ SKILLS_DIR = REPO_ROOT / "skills"
 SKILLS = [
     "asr-lychee",
     "tts-lychee",
+    "voice-lychee",
     "voice-clone-lychee",
     "voice-infer-lychee",
     "timbre-design-lychee",

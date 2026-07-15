@@ -2,7 +2,7 @@
 
 ## 这是什么
 
-一组面向 Claude Code 与兼容 AI 客户端的 lychee OpenAPI skills。项目把语音、音色、字幕和视频合成能力封装为 10 个独立 skill，并提供统一鉴权、一键安装和跨 skill 自检命令。
+一组面向 Claude Code 与兼容 AI 客户端的 lychee OpenAPI skills。项目把语音、音色、字幕和视频合成能力封装为 11 个独立 skill，并提供统一鉴权、一键安装和跨 skill 自检命令。
 
 这些 skill 覆盖 ASR、TTS、音色克隆、音色推理、音色设计、说话人识别、人声分离、字幕擦除、SRT 字幕翻译和视频压制合成。每个 skill 都可独立安装，也可以通过根安装器一次装齐。
 
@@ -98,7 +98,7 @@ python ~/.claude/skills/subtitle-erase-lychee/scripts/erase.py --file ./video.mp
 # 或单 skill：bash ~/.claude/skills/asr-lychee/doctor.sh
 ```
 
-成功：汇总显示类似 `10 OK / 0 ERROR`。
+成功：汇总显示类似 `11 OK / 0 ERROR`。
 
 
 ## Skills
@@ -107,6 +107,7 @@ python ~/.claude/skills/subtitle-erase-lychee/scripts/erase.py --file ./video.mp
 | --- | --- | --- |
 | `asr-lychee` | 上传音频并识别为文本 | `POST /open/asr` |
 | `tts-lychee` | WebSocket 文本转 MP3，支持音色别名匹配 | `WSS /openapi/tts/ws_binary/v2` |
+| `voice-lychee` | 文本、公共音色、图片或临时参考音频同步生成完整音频 | `POST /open/voice/lychee-voice` |
 | `voice-clone-lychee` | 上传参考音频克隆音色 | `POST /open/voice/zeroshot/clone` |
 | `voice-infer-lychee` | 使用克隆音色执行推理并返回元数据 | `POST /open/voice/zeroshot/infer` |
 | `timbre-design-lychee` | 按性别、年龄、风格和口音设计试听音色 | `POST /open/timbre-design/generate` |
@@ -146,11 +147,11 @@ npx -y skills add TaylorEnthon/lychee-skills2 \
   --skill tts-lychee \
   --skill voice-clone-lychee
 
-# 装全部 10 个（建议分 2-3 批，npx 工具对多 skill 的 clone 较慢且易断网）：
+# 装全部 11 个（建议分 2-3 批，npx 工具对多 skill 的 clone 较慢且易断网）：
 npx -y skills add TaylorEnthon/lychee-skills2 --skill asr-lychee --skill tts-lychee --skill voice-clone-lychee
 npx -y skills add TaylorEnthon/lychee-skills2 --skill voice-infer-lychee --skill timbre-design-lychee --skill speaker-classify-lychee
 npx -y skills add TaylorEnthon/lychee-skills2 --skill voice-separate-lychee --skill subtitle-erase-lychee --skill videots-lychee
-npx -y skills add TaylorEnthon/lychee-skills2 --skill video-compose-lychee
+npx -y skills add TaylorEnthon/lychee-skills2 --skill video-compose-lychee --skill voice-lychee
 ```
 
 `npx skills add` 自动从 `skills/<name>/` 拉文件安装到 `~/.claude/skills/<name>/`。
@@ -171,7 +172,7 @@ Windows PowerShell 7：
 pwsh -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
-安装器会把 10 个 skill 复制到 `~/.claude/skills/`，并把 3 个跨 skill command 复制到 `~/.claude/commands/`。安装过程可重复运行；单个 skill 安装失败会显示 WARN，其余 skill 继续安装。
+安装器会把 11 个 skill 复制到 `~/.claude/skills/`，并把跨 skill command 复制到 `~/.claude/commands/`。安装过程可重复运行；单个 skill 安装失败会显示 WARN，其余 skill 继续安装。
 
 如只需一个 skill，也可运行 `skills/<name>-lychee/` 子目录中的 `install.sh` 或 `install.ps1`。
 
@@ -222,6 +223,7 @@ lychee-skills2/
 └── skills/
     ├── asr-lychee/
     ├── tts-lychee/
+    ├── voice-lychee/
     ├── voice-clone-lychee/
     ├── voice-infer-lychee/
     ├── timbre-design-lychee/
@@ -244,10 +246,10 @@ GitHub Actions 会在 push / PR 到 `main` 时运行 [`.github/workflows/tests.y
 
 ### 最近完成
 
-- ✅ 10 个 skill 已完成：语音、音色、字幕、视频合成链路都已有独立入口。
+- ✅ 11 个 skill 已完成：语音、音色、字幕、视频合成链路都已有独立入口。
 - ✅ 公共 client 已完成：`shared/auth.py`、`shared/http_client.py`、`shared/ws_client.py`。
 - ✅ 一键安装、API Key 配置、全量 doctor 和 3 个组合 workflow recipe 已完成。
-- ✅ 当前测试收集 63 个用例，覆盖 skill 必要文件、help、doctor、安装脚本边界、部分参数校验和 workflow 文档。
+- ✅ 测试覆盖 skill 必要文件、help、doctor、安装脚本边界、参数校验和 workflow 文档。
 
 ### 进行中
 
@@ -257,7 +259,7 @@ GitHub Actions 会在 push / PR 到 `main` 时运行 [`.github/workflows/tests.y
 ### 下一阶段（待定）
 
 - 📋 README 示例随 skill 参数变化保持同步，优先补最常复制的端到端命令。
-- 📋 单元测试继续从现有 `tests/conftest.py` 覆盖的 10 个 skill 出发，补 command 文档示例和更多参数校验的轻量 smoke test。
+- 📋 单元测试继续从现有 `tests/conftest.py` 覆盖的 11 个 skill 出发，补 command 文档示例和更多参数校验的轻量 smoke test。
 - 📋 根据 lychee OpenAPI 新端点或现有端点变更，再决定是否扩展 skill。
 
 ## License

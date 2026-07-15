@@ -16,6 +16,7 @@ sys.path.insert(0, str(REPO_ROOT / "shared"))
 SKILLS_AND_SCRIPTS = {
     "asr-lychee": "asr.py",
     "tts-lychee": "synthesize.py",
+    "voice-lychee": "synthesize.py",
     "voice-clone-lychee": "clone.py",
     "voice-infer-lychee": "infer.py",
     "timbre-design-lychee": "design.py",
@@ -68,7 +69,7 @@ def test_skill_missing_api_key_includes_step(skill):
     if "step" not in payload:
         pytest.skip(f"{skill} stderr JSON 无 step 字段")
     assert payload["step"] in (
-        "asr", "tts", "voice-clone", "voice-infer", "voice-separate",
+        "asr", "tts", "voice-lychee", "voice-clone", "voice-infer", "voice-separate",
         "speaker-classify", "timbre-design", "subtitle-erase", "videots", "video-compose",
     )
 

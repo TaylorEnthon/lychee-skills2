@@ -1,6 +1,6 @@
 # lychee skill 输出 JSON schema
 
-本文记录 `skills/*-lychee/scripts/` 下 10 个 skill 的当前 stdout / stderr 输出结构，作为后续重构和用户集成的唯一参考。
+本文记录 `skills/*-lychee/scripts/` 下 11 个 skill 的当前 stdout / stderr 输出结构，作为后续重构和用户集成的唯一参考。
 
 多数脚本成功时向 stdout 打印单行 JSON，失败时向 stderr 打印单行 JSON。例外：`asr-lychee` 默认成功输出纯文本，`asr-lychee --debug`、`tts-lychee/scripts/list_voices.py` 和 `tts-lychee/scripts/preview_match.py` 当前输出 pretty-print JSON。
 
@@ -56,12 +56,13 @@
 | `project_id` | str | `subtitle-erase-lychee` | 字幕擦除项目 ID |
 | `waiting` | bool | 异步脚本 `--no-wait` | `false` 表示只提交不轮询 |
 | `status` | str | 异步脚本完成或状态查询 | 后端任务状态 |
-| `output` | str | `tts-lychee` | 本地 MP3 输出路径 |
+| `output` | str | `tts-lychee`、`voice-lychee` | 本地音频输出路径 |
+| `duration_ms` | number/null | `voice-lychee`、`speaker-classify-lychee` | 音频或任务时长，毫秒 |
+| `audio_url` | str | `voice-lychee` | 后端响应的完整音频 URL |
 | `download_url` | str | `videots-lychee` | 翻译结果下载 URL，可能为空字符串 |
 | `result_path` | str | `video-compose-lychee` | 合成视频结果 URL，来自后端 `resultPath` |
 | `audioUrl` | str | `timbre-design-lychee` | 试听音频 URL |
 | `duration_seconds` | number | `voice-infer-lychee` | 推理时长 |
-| `duration_ms` | number/null | `speaker-classify-lychee` | 任务耗时，毫秒 |
 | `asr_duration` | number/null | `speaker-classify-lychee` | ASR 处理时长 |
 | `spk_result` | array | `speaker-classify-lychee` | 说话人分段数组 |
 | `vocals_url` | str | `voice-separate-lychee` | 人声音频 URL，缺失时为空字符串 |
@@ -120,6 +121,32 @@
 ```
 
 `matched` 只有命中别名时出现。
+
+## voice-lychee
+
+主脚本：`skills/voice-lychee/scripts/synthesize.py`
+
+成功 stdout：
+
+```json
+{"success": true, "output": "./hello.mp3", "duration_ms": 3450, "audio_url": "https://example.com/hello.mp3"}
+```
+
+失败 stderr：
+
+```json
+{"success": false, "error": "<错误信息>", "step": "voice-lychee", "hint": "<可选恢复建议>"}
+```
+
+退出码：
+
+- `2`：API key 缺失、参数错误、本地文件错误。
+- `1`：API、网络或下载错误。
+
+辅助脚本：
+
+- `skills/voice-lychee/scripts/list_voices.py`：拉公共音色池并缓存 24 小时，成功输出 pretty-print JSON。
+- `skills/voice-lychee/scripts/list_tasks.py`：查任务历史，成功输出单行 JSON。
 
 ## asr-lychee
 
