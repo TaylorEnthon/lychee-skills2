@@ -36,6 +36,12 @@ def list_tasks(*, page: int = 1, page_size: int = 20, status: Optional[str] = No
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
+    import os
+    os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+    os.environ.setdefault("PYTHONUTF8", "1")
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description="查询 AI 配音任务历史。")
     parser.add_argument("--page", type=int, default=1)
     parser.add_argument("--page-size", type=int, default=20)

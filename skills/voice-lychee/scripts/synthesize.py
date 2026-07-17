@@ -36,6 +36,9 @@ class Parser(argparse.ArgumentParser):
 
 
 def configure_stdio() -> None:
+    import os
+    os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+    os.environ.setdefault("PYTHONUTF8", "1")
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8")

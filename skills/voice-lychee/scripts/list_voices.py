@@ -56,6 +56,12 @@ def list_voices(cache_path: Path = DEFAULT_CACHE, *, refresh: bool = False, no_c
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
+    import os
+    os.environ.setdefault("PYTHONIOENCODING", "utf-8")
+    os.environ.setdefault("PYTHONUTF8", "1")
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8")
     parser = argparse.ArgumentParser(description="拉取公共音色池并缓存 24 小时。")
     parser.add_argument("--refresh", action="store_true", help="忽略缓存并重新拉取")
     parser.add_argument("--no-cache", action="store_true", help="不读写缓存")
