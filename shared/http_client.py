@@ -35,6 +35,11 @@ def _url(path: str) -> str:
 
 
 def _response_json(response: requests.Response) -> Any:
+    # 接口 Content-Type=application/json 不带 charset=utf-8，
+    # requests 默认按 ISO-8859-1 解码，导致中文 name 乱码。
+    # 在 json.loads 之前强制 UTF-8，让结果字典里中文字符串正确。
+    if response.encoding is None or response.encoding.lower() == "iso-8859-1":
+        response.encoding = "utf-8"
     try:
         return response.json()
     except ValueError:
