@@ -62,6 +62,19 @@ python scripts/list_tasks.py --status success
 - 纯文本模式禁止 `{{voice:N}}`；图片模式不处理 mention。
 - 临时音频不会沉淀到音色池；需长期复用时先调用 voice-clone。
 
+## 音色 ID 匹配规则（关键）
+
+**严禁根据 `name` 字段猜 ID。** `list_voices.py` 输出里 `name` 是中文（如"温柔男声"），在 Windows 中文终端可能显示成乱码（如"温柔�..."或乱码方块），不同 agent 看到的"乱码长度"也不稳定。
+
+**正确做法**：
+
+1. 调用 `python scripts/list_voices.py` 拿原始 JSON，**只看 `id`（纯 ASCII）和 `gender`（male/female）**——这两个字段不会乱码
+2. 把候选 ID 都试一下合成短文本，对比听感确认是哪个音色
+3. 用户说"温柔男声" → 先 `list_voices` 拿到所有 `gender=male` 的 ID（3/4/5/19/36/37...），逐个 `--voice-ids <id>` 跑一句短文让用户听
+4. 不要尝试根据 `name` 字段长度、字节序列、可读片段去推断 ID——后端 UTF-8 字节在 GBK 终端渲染不可靠
+
+**音色 ID 一旦确定就缓存**：用户确认"温柔男声 = id=4"之后，下次直接 `--voice-ids 4` 即可，不用再 list_voices。
+
 ## Verification
 
 成功时退出码为 0，stdout 包含 `success=true`、本地 `output`、`duration_ms`、`audio_url`，且本地文件存在。参数或本地文件错误退出 2；API、网络或下载失败退出 1。
