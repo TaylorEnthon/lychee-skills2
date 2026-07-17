@@ -17,7 +17,6 @@ def test_auth_module_imports():
 
 def test_auth_missing_key_raises():
     saved_lychee = os.environ.pop("LYCHEE_API_KEY", None)
-    saved_tts = os.environ.pop("TTS_API_KEY", None)
     try:
         from auth import MissingApiKeyError, get_api_key
 
@@ -26,8 +25,6 @@ def test_auth_missing_key_raises():
     finally:
         if saved_lychee:
             os.environ["LYCHEE_API_KEY"] = saved_lychee
-        if saved_tts:
-            os.environ["TTS_API_KEY"] = saved_tts
 
 
 def test_http_client_module_imports():

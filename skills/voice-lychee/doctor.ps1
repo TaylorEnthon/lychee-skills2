@@ -9,8 +9,8 @@ foreach ($Candidate in @("python3", "python")) {
 }
 if (-not $Python) { throw "未找到 Python 3" }
 & $Python -c "import requests; print('requests', requests.__version__)"
-if (-not $env:LYCHEE_API_KEY -and -not $env:TTS_API_KEY) {
-    Write-Host "WARN: LYCHEE_API_KEY 未设置（兼容 TTS_API_KEY）。运行 /lychee-set-key 配置。"
+if (-not $env:LYCHEE_API_KEY) {
+    Write-Host "WARN: LYCHEE_API_KEY 未设置。运行 /lychee-set-key 配置。"
 } else {
     Write-Host "OK: API key 已设置"
 }

@@ -54,7 +54,7 @@ def test_skill_help_exits_zero(skill):
 
 @pytest.mark.parametrize("skill", list(SKILLS_AND_SCRIPTS.keys()))
 def test_skill_missing_api_key_includes_step(skill):
-    r = _run(skill, env={"LYCHEE_API_KEY": "", "TTS_API_KEY": ""}, timeout=10)
+    r = _run(skill, env={"LYCHEE_API_KEY": ""}, timeout=10)
     if r.returncode not in (1, 2):
         pytest.skip(f"{skill} 不依赖 API key (returncode={r.returncode})")
     if not r.stderr.strip():

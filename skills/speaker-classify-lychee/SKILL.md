@@ -87,6 +87,6 @@ jq '.spk_result | length' ./result.json  # 应该 ≥ 1
 
 ## 环境变量与错误
 
-设置 `LYCHEE_API_KEY`，也兼容 `TTS_API_KEY`。运行 `doctor.sh` 或 `doctor.ps1` 可检查 Python、`requests`、共享客户端和 HTTP 服务。
+设置 `LYCHEE_API_KEY`。运行 `doctor.sh` 或 `doctor.ps1` 可检查 Python、`requests`、共享客户端和 HTTP 服务。
 
 文件无效或参数错误返回退出码 2；API、网络、任务失败或轮询超时返回退出码 1。长音频可能超过默认 300 秒，请按需增大 `--timeout`。

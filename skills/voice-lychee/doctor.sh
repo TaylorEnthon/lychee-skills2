@@ -12,8 +12,8 @@ done
 [ -n "$PYTHON" ] || { echo "ERROR: 未找到 Python 3"; exit 1; }
 "$PYTHON" -c "import requests; print('requests', requests.__version__)"
 
-if [ -z "${LYCHEE_API_KEY:-${TTS_API_KEY:-}}" ]; then
-  echo "WARN: LYCHEE_API_KEY 未设置（兼容 TTS_API_KEY）。运行 /lychee-set-key 配置。"
+if [ -z "${LYCHEE_API_KEY:-}" ]; then
+  echo "WARN: LYCHEE_API_KEY 未设置。运行 /lychee-set-key 配置。"
 else
   echo "OK: API key 已设置"
 fi

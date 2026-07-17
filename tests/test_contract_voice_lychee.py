@@ -183,7 +183,7 @@ def test_text_mode_rejects_voice_mention(capsys):
 
 
 def test_missing_api_key_returns_two(tmp_path):
-    env = {**os.environ, "LYCHEE_API_KEY": "", "TTS_API_KEY": "", "PYTHONUTF8": "1"}
+    env = {**os.environ, "LYCHEE_API_KEY": "", "PYTHONUTF8": "1"}
     result = subprocess.run(
         [sys.executable, str(SCRIPT), "--text", "test", "--output", str(tmp_path / "out.wav")],
         cwd=REPO_ROOT,

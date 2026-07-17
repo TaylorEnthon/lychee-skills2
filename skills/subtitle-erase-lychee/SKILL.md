@@ -50,7 +50,7 @@ python scripts/erase.py --file ./video.mp4 --output ./result.json
 
 服务端在任务成功后按视频时长异步扣费，客户端不计算或重复扣费。请避免对同一视频重复提交。
 
-设置 `LYCHEE_API_KEY`，也兼容 `TTS_API_KEY`。文件或参数错误返回退出码 2；API、网络、任务失败或轮询超时返回退出码 1。字幕擦除耗时较长，必要时增大 `--timeout`。
+设置 `LYCHEE_API_KEY`。文件或参数错误返回退出码 2；API、网络、任务失败或轮询超时返回退出码 1。字幕擦除耗时较长，必要时增大 `--timeout`。
 
 ## When to use
 

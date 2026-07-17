@@ -31,9 +31,9 @@ Write-Host "== 检查 websocket-client 依赖 =="
 & $Python -c "import websocket; print('websocket-client', websocket.__version__)"
 
 Write-Host "== 检查 API key =="
-$ApiKey = if ($env:LYCHEE_API_KEY) { $env:LYCHEE_API_KEY } else { $env:TTS_API_KEY }
+$ApiKey = $env:LYCHEE_API_KEY
 if ([string]::IsNullOrEmpty($ApiKey)) {
-    Write-Host "WARN: LYCHEE_API_KEY 未设置（兼容 TTS_API_KEY 也没有）。运行 /lychee-set-key 配置。"
+    Write-Host "WARN: LYCHEE_API_KEY 未设置。运行 /lychee-set-key 配置。"
 } else {
     $PrefixLength = [Math]::Min(8, $ApiKey.Length)
     Write-Host "OK: API key 已设置（前 8 位）=$($ApiKey.Substring(0, $PrefixLength))..."

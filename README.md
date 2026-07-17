@@ -180,7 +180,7 @@ pwsh -NoLogo -NoProfile -ExecutionPolicy Bypass -File .\install.ps1
 
 安装后运行 `/lychee-set-key`，按提示获取并设置 `LYCHEE_API_KEY`。完整说明见 [commands/lychee-set-key.md](commands/lychee-set-key.md)。
 
-旧环境变量 `TTS_API_KEY` 仍可作为 fallback；两个变量同时存在时优先使用 `LYCHEE_API_KEY`。
+环境变量统一使用 `LYCHEE_API_KEY`。如果在旧文档中看到 `TTS_API_KEY`，那只是历史命名，请改用 `LYCHEE_API_KEY`。
 
 ## 自检
 

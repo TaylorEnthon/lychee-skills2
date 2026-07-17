@@ -64,4 +64,4 @@ if [ -f "$LEGACY_COMMAND" ]; then
 fi
 
 echo "Installed $NAME → $SKILL_TARGET"
-echo "Set LYCHEE_API_KEY before use (or TTS_API_KEY as fallback). Get one from https://shanhaistudio.lycheeai.com.cn/"
+echo "Set LYCHEE_API_KEY before use. Get one from https://shanhaistudio.lycheeai.com.cn/"

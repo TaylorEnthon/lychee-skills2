@@ -76,7 +76,7 @@ python scripts/compose.py --video-file ./video.mp4 --audio-file ./dub.mp3 --subt
 视频文件格式不支持；仅支持 .mp4
 ```
 
-设置 `LYCHEE_API_KEY`，也兼容 `TTS_API_KEY`。
+设置 `LYCHEE_API_KEY`。
 
 ## When to use
 

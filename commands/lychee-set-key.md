@@ -31,6 +31,6 @@ echo 'export LYCHEE_API_KEY="你的API密钥"' >> ~/.bashrc
 
 运行 `/lychee-doctor`，如果看到 `OK: API key 已设置（前 8 位）=...` 就成功了。
 
-## 兼容
+## 验证已读取的环境变量名
 
-旧的 `TTS_API_KEY` 也被识别（作为 fallback）。如果两个都设了，`LYCHEE_API_KEY` 优先。
+环境变量固定为 `LYCHEE_API_KEY`。如果在旧文档中看到 `TTS_API_KEY`，那只是历史命名，请改用 `LYCHEE_API_KEY`。

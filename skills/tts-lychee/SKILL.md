@@ -13,7 +13,7 @@ description: |
 
 ## 配置
 
-设置环境变量 `LYCHEE_API_KEY`；未设置时会兼容读取 `TTS_API_KEY`。运行 `/lychee-set-key` 可查看配置指引。
+设置环境变量 `LYCHEE_API_KEY`。运行 `/lychee-set-key` 可查看配置指引。
 
 ## 相关 slash command
 
@@ -36,7 +36,7 @@ python scripts/preview_match.py "性感的女声"
 
 ## Process
 
-1. 读环境变量 `LYCHEE_API_KEY`(fallback `TTS_API_KEY`)
+1. 读环境变量 `LYCHEE_API_KEY`
 2. 校验文本长度 ≤ 5000 + 音量/速度 > 0
 3. 解析 `--voice`:别名 / preset / 关键词规则多层匹配(顺序见 `references/voicing-notes.md`)
 4. base64 解 `preset.speaker_ref` 得后端 speaker_id

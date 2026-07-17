@@ -13,7 +13,7 @@ description: |
 
 ## 配置
 
-设置环境变量 `LYCHEE_API_KEY`；为了兼容旧配置，未设置时会尝试 `TTS_API_KEY`。
+设置环境变量 `LYCHEE_API_KEY`。
 
 ## 用法
 
@@ -52,7 +52,7 @@ python scripts/asr.py --file audio.wav --debug --output result.json
 ## Process
 
 1. 读 `--file`,校验存在 + 后缀白名单 + 大小 ≤ 2GB + 时长 10s-60min
-2. 读 `LYCHEE_API_KEY`(fallback `TTS_API_KEY`),初始化 `http_client`
+2. 读 `LYCHEE_API_KEY`,初始化 `http_client`
 3. multipart POST 到 `/open/asr`,带 `language` form 字段
 4. 解包 `data.text`,stdout 直接打印(无 `success` 包装);`--debug` 时打印完整 data JSON
 

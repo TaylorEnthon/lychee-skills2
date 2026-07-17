@@ -12,7 +12,7 @@ description: |
 
 ## 配置
 
-设置环境变量 `LYCHEE_API_KEY`；未设置时兼容读取 `TTS_API_KEY`。
+设置环境变量 `LYCHEE_API_KEY`。
 
 ## 用法
 

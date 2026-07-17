@@ -86,7 +86,6 @@ def test_main_full_flow_subprocess(tmp_path):
         "PYTHONUTF8": "1",
     }
     env.pop("LYCHEE_API_KEY", None)
-    env.pop("TTS_API_KEY", None)
     result = subprocess.run(
         [sys.executable, "skills/voice-clone-lychee/scripts/clone.py", "--file", str(audio), "--carry-back", "test"],
         capture_output=True, text=True, timeout=10, cwd=str(REPO_ROOT), env=env, encoding="utf-8", errors="replace",

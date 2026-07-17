@@ -10,7 +10,7 @@ CLAUDE.md / AGENTS.md / GEMINI.md 同时存在时,以最具体的为准。
 
 ## 必有前提
 
-- 用户运行 `/lychee-set-key` 配置 `LYCHEE_API_KEY`(fallback `TTS_API_KEY`)
+- 用户运行 `/lychee-set-key` 配置 `LYCHEE_API_KEY`
 - bash / pwsh 已装,把 skill 复制到 `~/.claude/skills/<name>-lychee/`
 
 ## 全局规则
@@ -52,7 +52,7 @@ pre-commit 触发时自动跑 52 smoke。push 前手动跑 `python -m pytest -q`
 
 ## 调试
 
-- 不带 API key:`unset LYCHEE_API_KEY TTS_API_KEY && python <script>` 应退出码 2 + stderr JSON `{"success": false, "error": "...", "step": "<skill>", "hint": "..."}`
+- 不带 API key:`unset LYCHEE_API_KEY && python <script>` 应退出码 2 + stderr JSON `{"success": false, "error": "...", "step": "<skill>", "hint": "..."}`
 - 看后端契约:`shared/http_client.py:60` 的 `_unwrap()` 假定 `ApiResponse<T>` 格式
 - 真要打后端:设 `LYCHEE_API_KEY` + 用 `--no-wait` 防止无限轮询
 

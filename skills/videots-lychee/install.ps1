@@ -81,4 +81,4 @@ if (Test-Path -LiteralPath $LegacyCommand) {
 }
 
 Write-Host "Installed $Name → $SkillTarget"
-Write-Host "Set LYCHEE_API_KEY before use (or TTS_API_KEY as fallback). Get one from https://shanhaistudio.lycheeai.com.cn/"
+Write-Host "Set LYCHEE_API_KEY before use. Get one from https://shanhaistudio.lycheeai.com.cn/"

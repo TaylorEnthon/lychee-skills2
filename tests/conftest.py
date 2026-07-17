@@ -1,4 +1,5 @@
 """pytest 配置 + 路径常量。"""
+import os
 from pathlib import Path
 import re
 import shutil
@@ -36,6 +37,16 @@ def skill_dir(skill_name):
 @pytest.fixture
 def shared_dir():
     return SHARED_DIR
+
+
+def _ensure_test_api_key():
+    """保证单元测试有占位 API key；真实请求由 mock 拦截。"""
+    os.environ.setdefault("LYCHEE_API_KEY", "test-fixture-key")
+
+
+@pytest.fixture(autouse=True)
+def _api_key_fixture():
+    _ensure_test_api_key()
 
 
 @pytest.fixture

@@ -22,9 +22,9 @@ echo "== 检查 requests 依赖 =="
 "$PYTHON" -c "import requests; print('requests', requests.__version__)"
 
 echo "== 检查 API key =="
-API_KEY="${LYCHEE_API_KEY:-${TTS_API_KEY:-}}"
+API_KEY="${LYCHEE_API_KEY:-}"
 if [ -z "$API_KEY" ]; then
-  echo "WARN: LYCHEE_API_KEY 未设置（兼容 TTS_API_KEY 也没有）。运行 /lychee-set-key 配置。"
+  echo "WARN: LYCHEE_API_KEY 未设置。运行 /lychee-set-key 配置。"
 else
   echo "OK: API key 已设置（前 8 位）=${API_KEY:0:8}..."
 fi

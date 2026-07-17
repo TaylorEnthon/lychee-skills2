@@ -56,7 +56,6 @@ def _bash_path(path):
 def assert_doctor_warns_without_api_key(skill_dir, tmp_path, monkeypatch):
     """Run doctor.sh without a real API key or network access."""
     monkeypatch.delenv("LYCHEE_API_KEY", raising=False)
-    monkeypatch.delenv("TTS_API_KEY", raising=False)
 
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()

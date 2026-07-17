@@ -55,7 +55,7 @@ python scripts/translate.py --action translate --file ./source.srt --target-lang
 
 使用 `--download-output` 时，客户端调用 `/open/videots/download`。接口直接返回二进制时写入文件；返回 JSON `download_url` 时继续下载实际文件。目标目录会自动创建。
 
-设置 `LYCHEE_API_KEY`，也兼容 `TTS_API_KEY`。文件或参数错误返回退出码 2；API、网络、任务失败或轮询超时返回退出码 1。
+设置 `LYCHEE_API_KEY`。文件或参数错误返回退出码 2；API、网络、任务失败或轮询超时返回退出码 1。
 
 ## When to use
 
