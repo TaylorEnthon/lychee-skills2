@@ -25,9 +25,56 @@ from errors import format_error
 from http_client import LycheeApiError, post_json, post_multipart
 
 PATH = "/open/voice/lychee-voice"
+LIST_PATH = "/open/voice/lychee-voice/list"
 FORMATS = {"wav", "mp3", "pcm", "ogg_opus"}
 SAMPLE_RATES = {8000, 16000, 24000, 32000, 44100, 48000}
 VOICE_MENTION = re.compile(r"\{\{voice:[^}]+}}")
+
+
+def _voice_names(values):
+    """把 argparse 的 action='append' 列表拍平成名字列表（支持逗号分隔）。"""
+    if not values:
+        return []
+    out = []
+    for value in values:
+        for item in value.split(","):
+            item = item.strip()
+            if item:
+                out.append(item)
+    return out
+
+
+def _load_voice_pool(timeout=60):
+    """拉公共音色池 [{id, name}, ...]。失败抛 ValueError。"""
+    from http_client import get_json
+    raw = get_json(LIST_PATH, timeout=timeout)
+    if not isinstance(raw, list):
+        raise ValueError("voice list response is not a list")
+    out = []
+    for item in raw:
+        if not isinstance(item, dict):
+            continue
+        name = item.get("name")
+        voice_id = item.get("id")
+        if isinstance(name, str) and isinstance(voice_id, str):
+            out.append({"id": voice_id, "name": name})
+    return out
+
+
+def _resolve_voice_names(names, timeout=60):
+    """名字 → id 解析（精确匹配 name 字段）。返回 {resolved: [{name, id}], missing: [name]}。"""
+    pool = _load_voice_pool(timeout=timeout)
+    resolved = []
+    missing = []
+    used_ids = set()
+    for name in names:
+        match = next((e for e in pool if e["name"] == name and e["id"] not in used_ids), None)
+        if match:
+            resolved.append({"name": name, "id": match["id"]})
+            used_ids.add(match["id"])
+        else:
+            missing.append(name)
+    return {"resolved": resolved, "missing": missing}
 
 
 class Parser(argparse.ArgumentParser):
@@ -48,6 +95,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser = Parser(description="通过 lychee OpenAPI 同步生成 AI 配音。")
     parser.add_argument("--text", required=True, help="要合成的文本")
     parser.add_argument("--voice-ids", action="append", help="公共音色 ID；可重复或用逗号分隔")
+    parser.add_argument("--voice-names", action="append",
+                        help="公共音色 name（自动查表转 id）；任何一个 name 找不到时整体降级为纯文本模式（让 AI 自动选音色）。可重复或用逗号分隔")
     parser.add_argument("--audio-urls", action="append", help="临时参考音频 URL/Base64；可重复")
     parser.add_argument("--image", type=Path, help="图片参考（jpeg/png/webp）")
     parser.add_argument("--format", default="wav", help="wav/mp3/pcm/ogg_opus，默认 wav")
@@ -68,6 +117,7 @@ def _voice_ids(values: Optional[List[str]]) -> List[str]:
 def validate_args(args: argparse.Namespace) -> None:
     args.format = args.format.lower()
     args.voice_ids = _voice_ids(args.voice_ids)
+    args.voice_names = _voice_names(getattr(args, "voice_names", None))
     if not args.text.strip():
         raise ValueError("--text 不能为空")
     if len(args.text) > 3000:
@@ -152,15 +202,44 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     try:
         args = build_parser().parse_args(argv)
         validate_args(args)
+        fallback_reason = None
+        # voice-names 解析：找名字 → ID。任何 name 找不到时整体降级为 text 模式
+        if getattr(args, "voice_names", None):
+            # --voice-ids 和 --voice-names 互斥（不可同时给）
+            if args.voice_ids:
+                raise ValueError("--voice-ids 和 --voice-names 不能同时传")
+            try:
+                resolution = _resolve_voice_names(args.voice_names, timeout=args.timeout)
+            except (ValueError, LycheeApiError, requests.RequestException) as exc:
+                raise ValueError("查询音色池失败：{}".format(exc))
+            resolved = resolution["resolved"]
+            missing = resolution["missing"]
+            if not resolved and missing:
+                # 全部缺失 → text 模式（AI 自动选音色）
+                fallback_reason = "所有音色名都不在公共音色池（{}）；已用纯文本模式（让 AI 自动选音色）。".format("、".join(missing))
+                args.voice_ids = None
+            elif missing:
+                # 部分缺失 → 整体降级为 text 模式 + 提示哪些被忽略
+                used_names = [r["name"] for r in resolved]
+                fallback_reason = "音色「{}」不在公共音色池（{}）；整体降级为纯文本模式（让 AI 自动选音色）。".format(
+                    "、".join(missing), "、".join(used_names))
+                args.voice_ids = None
+            else:
+                # 全找到 → 用 resolved ids
+                args.voice_ids = [r["id"] for r in resolved]
         output = args.output or Path("{}_voice-lychee.{}".format(datetime.now().strftime("%Y%m%d-%H%M%S"), args.format))
         result = generate(args)
         download(result["audio_url"], output, args.timeout)
-        print(json.dumps({
+        payload = {
             "success": True,
             "output": str(output),
             "duration_ms": result.get("duration"),
             "audio_url": result["audio_url"],
-        }, ensure_ascii=False))
+            "mode": reference_type(args),
+        }
+        if fallback_reason:
+            payload["fallback_reason"] = fallback_reason
+        print(json.dumps(payload, ensure_ascii=False))
         return 0
     except MissingApiKeyError as exc:
         print(json.dumps(format_error(exc, step="voice-lychee", hint="运行 /lychee-set-key 配置 API key"), ensure_ascii=False), file=sys.stderr)
