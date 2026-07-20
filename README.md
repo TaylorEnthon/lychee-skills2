@@ -100,6 +100,42 @@ python ~/.claude/skills/subtitle-erase-lychee/scripts/erase.py --file ./video.mp
 
 成功：汇总显示类似 `11 OK / 0 ERROR`。
 
+## voice-lychee 重点功能
+
+`voice-lychee` 是同步 HTTP 配音接口（`/open/voice/lychee-voice`），支持 4 种模式：**纯文本 / 公共音色 / 图片 / 临时参考音频**。
+
+### 按音色名直接读（自动查表 + 降级）
+
+```bash
+# 按 name 读（自动查公共音色池 name → id）
+python ~/.claude/skills/voice-lychee/scripts/synthesize.py \
+  --voice-names "Vivi" --voice-names "小何" \
+  --text "你好" --output ./out.mp3
+```
+
+**降级行为**：任一 name 在池里找不到时整体降级到纯文本模式（让后端 AI 自动选音色，效果通常优于小模型音色），stdout `fallback_reason` 字段告诉你哪些 name 没找到、用了什么替代。
+
+### 润色剧本
+
+输入简单对话，agent 自动判断是否需要润色成"有声剧风格"（角色卡片 + 表演提示 + 拟音词 + BGM 提示 + 空间混响）。详见 [`voice-lychee/SKILL.md`](skills/voice-lychee/SKILL.md) 和 [`references/script-polishing-guide.md`](skills/voice-lychee/references/script-polishing-guide.md)。
+
+**控制 flag**：
+- 默认：agent 自动判断（多角色多台词 → 润色；单句 → 不润色）
+- `--no-polish`：禁用润色，用用户原文本（stdout `polish: "skipped"`）
+- `--polish`：强制润色（stdout `polish: "forced"`）
+
+```bash
+# 用户说"不要润色"
+python ~/.claude/skills/voice-lychee/scripts/synthesize.py \
+  --text "你好。" --no-polish --output ./out.mp3
+# stdout: {"polish": "skipped", ...}
+```
+
+### 中文乱码与音色 ID 识别
+
+- 音色名（"Vivi 2.0"、"温柔男声"）在 Windows 中文终端可能显示成乱码方块
+- **永远以 `id` 字段为准**（纯 ASCII，不会乱码）
+- 用户提到"温柔男声"时：先 `list_voices.py` 拿 `gender=male` 的 ID 候选，逐个合成短文让用户听确认
 
 ## Skills
 
