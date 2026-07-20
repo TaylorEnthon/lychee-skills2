@@ -1,7 +1,7 @@
 ---
 name: voice-lychee
-version: 1.0.0
-description: 调 lychee-openapi 的同步配音接口 /open/voice/lychee-voice，以文本、公共音色、图片或临时参考音频生成完整音频。触发：用户说「合成配音」「AI 配音」「文本转语音」「用音色 X 读」「多音色对话」「图片转语音」「临时参考音频生成」「voice generation」「text to speech」「AI voice」「image to voice」「multi-voice dialogue」「/voice-lychee」。
+version: 1.1.0
+description: 调 lychee-openapi 的同步配音接口 /open/voice/lychee-voice，以文本、公共音色、图片或临时参考音频生成完整音频；也支持把简单剧本润色成"有声剧风格"再合成。触发：用户说「合成配音」「AI 配音」「文本转语音」「用音色 X 读」「多音色对话」「图片转语音」「临时参考音频生成」「润色剧本」「生成有声剧」「voice generation」「text to speech」「AI voice」「image to voice」「multi-voice dialogue」「/voice-lychee」。
 ---
 
 # Voice Lychee
@@ -29,6 +29,7 @@ python scripts/list_tasks.py --status success
 - 使用 1–3 个公共音色生成单人或多人对白。
 - 使用一张图片或 1–3 条临时音频作为参考。
 - 查询公共音色或当前 API Key 对应用户的配音历史。
+- **润色剧本**：把用户的简单对话/剧本润色成"火山 SeedAudio 友好的有声剧风格"（角色卡片 + 表演提示 + 拟音词 + BGM 提示 + 空间混响），再合成。详见 `references/script-polishing-guide.md`。
 
 ## Process
 
