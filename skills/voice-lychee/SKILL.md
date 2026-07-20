@@ -29,7 +29,7 @@ python scripts/list_tasks.py --status success
 - 使用 1–3 个公共音色生成单人或多人对白。
 - 使用一张图片或 1–3 条临时音频作为参考。
 - 查询公共音色或当前 API Key 对应用户的配音历史。
-- **润色剧本**：把用户的简单对话/剧本润色成"火山 SeedAudio 友好的有声剧风格"（角色卡片 + 表演提示 + 拟音词 + BGM 提示 + 空间混响），再合成。详见 `references/script-polishing-guide.md`。
+- **润色剧本**：把用户的简单对话/剧本润色成"底层 TTS 引擎友好的有声剧风格"（角色卡片 + 表演提示 + 拟音词 + BGM 提示 + 空间混响），再合成。详见 `references/script-polishing-guide.md`。
 
 ## Process
 
