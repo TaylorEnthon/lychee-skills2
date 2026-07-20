@@ -105,6 +105,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--loudness-rate", type=int, default=0)
     parser.add_argument("--pitch-rate", type=int, default=0)
     parser.add_argument("--enable-subtitle", action="store_true")
+    parser.add_argument("--polish", action="store_true",
+                        help="强制调用方对剧本做润色（agent 跳过自动判断，直接走润色路径）")
+    parser.add_argument("--no-polish", action="store_true",
+                        help="禁用润色（agent 不要自动润色，直接用用户原文本）")
     parser.add_argument("--output", type=Path, help="本地音频输出路径")
     parser.add_argument("--timeout", type=float, default=120.0)
     return parser
@@ -141,6 +145,8 @@ def validate_args(args: argparse.Namespace) -> None:
         raise ValueError("图片不存在或不是文件: {}".format(args.image))
     if not (args.image or args.audio_urls or args.voice_ids) and VOICE_MENTION.search(args.text):
         raise ValueError("纯文本模式不允许出现 mention")
+    if getattr(args, "polish", False) and getattr(args, "no_polish", False):
+        raise ValueError("--polish 和 --no-polish 不能同时传")
 
 
 def reference_type(args: argparse.Namespace) -> str:
@@ -230,12 +236,18 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         output = args.output or Path("{}_voice-lychee.{}".format(datetime.now().strftime("%Y%m%d-%H%M%S"), args.format))
         result = generate(args)
         download(result["audio_url"], output, args.timeout)
+        polish_strategy = "auto"
+        if getattr(args, "polish", False):
+            polish_strategy = "forced"
+        elif getattr(args, "no_polish", False):
+            polish_strategy = "skipped"
         payload = {
             "success": True,
             "output": str(output),
             "duration_ms": result.get("duration"),
             "audio_url": result["audio_url"],
             "mode": reference_type(args),
+            "polish": polish_strategy,
         }
         if fallback_reason:
             payload["fallback_reason"] = fallback_reason

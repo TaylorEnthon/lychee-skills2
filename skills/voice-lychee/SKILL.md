@@ -31,6 +31,18 @@ python scripts/list_tasks.py --status success
 - 查询公共音色或当前 API Key 对应用户的配音历史。
 - **润色剧本**：把用户的简单对话/剧本润色成"底层 TTS 引擎友好的有声剧风格"（角色卡片 + 表演提示 + 拟音词 + BGM 提示 + 空间混响），再合成。详见 `references/script-polishing-guide.md`。
 
+**润色自动判断规则**（agent 默认行为）：
+- 用户输入含 ≥2 角色名 + 多句台词（"X 说：... Y 说：..." 或对话格式）→ 自动润色
+- 用户输入是单句台词 / 单段文本 → 不润色
+- 用户明确说"不润色""原文读""直接读" → 不润色
+
+**润色控制 flag**：
+- 默认：agent 自动判断
+- `--no-polish`：禁用润色，agent 用用户原文本
+- `--polish`：强制润色，覆盖 agent 的判断
+
+stdout `polish` 字段告诉调用方本次走了哪种路径（`auto` / `skipped` / `forced`）。
+
 ## Process
 
 1. 有 `--image` 时走 `image` multipart；否则依次识别 `--audio-urls`、`--voice-ids`，都没有则走 `text` JSON。

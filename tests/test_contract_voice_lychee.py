@@ -196,3 +196,68 @@ def test_missing_api_key_returns_two(tmp_path):
     )
     assert result.returncode == 2
     assert json.loads(result.stderr)["step"] == "voice-lychee"
+
+
+def test_polish_default_auto_in_payload(monkeypatch, tmp_path, capsys):
+    """默认（无 --polish / --no-polish）：stdout polish 字段是 "auto" """
+    module = load_module()
+    output = tmp_path / "out.wav"
+    monkeypatch.setattr(module, "post_json", MagicMock(return_value={
+        "audio_url": "https://example.com/out.wav", "duration": 1500,
+    }))
+    response = MagicMock(content=b"audio")
+    response.raise_for_status.return_value = None
+    monkeypatch.setattr(module.requests, "get", MagicMock(return_value=response))
+
+    assert module.main(["--text", "测试", "--output", str(output)]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["polish"] == "auto"
+
+
+def test_no_polish_sets_payload_field(monkeypatch, tmp_path, capsys):
+    """--no-polish：stdout polish 字段是 "skipped" """
+    module = load_module()
+    output = tmp_path / "out.wav"
+    monkeypatch.setattr(module, "post_json", MagicMock(return_value={
+        "audio_url": "https://example.com/out.wav", "duration": 1500,
+    }))
+    response = MagicMock(content=b"audio")
+    response.raise_for_status.return_value = None
+    monkeypatch.setattr(module.requests, "get", MagicMock(return_value=response))
+
+    assert module.main(["--text", "测试", "--no-polish", "--output", str(output)]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["polish"] == "skipped"
+
+
+def test_polish_sets_payload_field(monkeypatch, tmp_path, capsys):
+    """--polish：stdout polish 字段是 "forced" """
+    module = load_module()
+    output = tmp_path / "out.wav"
+    monkeypatch.setattr(module, "post_json", MagicMock(return_value={
+        "audio_url": "https://example.com/out.wav", "duration": 1500,
+    }))
+    response = MagicMock(content=b"audio")
+    response.raise_for_status.return_value = None
+    monkeypatch.setattr(module.requests, "get", MagicMock(return_value=response))
+
+    assert module.main(["--text", "测试", "--polish", "--output", str(output)]) == 0
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["polish"] == "forced"
+
+
+def test_polish_and_no_polish_conflict(tmp_path):
+    """--polish 和 --no-polish 同时传：退出码 2 + ValueError 错误"""
+    result = subprocess.run(
+        [sys.executable, str(SCRIPT),
+         "--text", "测试", "--polish", "--no-polish",
+         "--output", str(tmp_path / "out.wav")],
+        cwd=REPO_ROOT,
+        env={**os.environ, "LYCHEE_API_KEY": "", "TTS_API_KEY": "", "PYTHONUTF8": "1"},
+        capture_output=True, text=True, timeout=10,
+        encoding="utf-8", errors="replace",
+    )
+    assert result.returncode == 2
+    payload = json.loads(result.stderr)
+    assert "--polish" in payload["error"]
+    assert "--no-polish" in payload["error"]
