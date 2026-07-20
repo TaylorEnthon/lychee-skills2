@@ -147,6 +147,8 @@ def validate_args(args: argparse.Namespace) -> None:
         raise ValueError("纯文本模式不允许出现 mention")
     if getattr(args, "polish", False) and getattr(args, "no_polish", False):
         raise ValueError("--polish 和 --no-polish 不能同时传")
+    if args.voice_ids and args.voice_names:
+        raise ValueError("--voice-ids 和 --voice-names 不能同时传")
 
 
 def reference_type(args: argparse.Namespace) -> str:
@@ -211,9 +213,6 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         fallback_reason = None
         # voice-names 解析：找名字 → ID。任何 name 找不到时整体降级为 text 模式
         if getattr(args, "voice_names", None):
-            # --voice-ids 和 --voice-names 互斥（不可同时给）
-            if args.voice_ids:
-                raise ValueError("--voice-ids 和 --voice-names 不能同时传")
             try:
                 resolution = _resolve_voice_names(args.voice_names, timeout=args.timeout)
             except (ValueError, LycheeApiError, requests.RequestException) as exc:

@@ -129,8 +129,24 @@
 成功 stdout：
 
 ```json
-{"success": true, "output": "./hello.mp3", "duration_ms": 3450, "audio_url": "https://example.com/hello.mp3"}
+{"success": true, "output": "./hello.mp3", "duration_ms": 3450, "audio_url": "https://example.com/hello.mp3", "mode": "text", "polish": "auto"}
 ```
+
+字段说明（v1.1.0+）：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `success` | bool | 合成成功 |
+| `output` | string | 本地音频输出路径 |
+| `duration_ms` | number | 音频时长（毫秒） |
+| `audio_url` | string | 后端返回的成品 URL（COS 公网，2 小时有效） |
+| `mode` | string | 实际模式：`text` / `voices` / `image` / `audio_url` |
+| `polish` | string | 润色策略：`auto` / `skipped` / `forced` |
+| `fallback_reason` | string? | 仅 `--voice-names` 找不到任一 name 时出现，说明降级原因 |
+
+辅助脚本：
+- `skills/voice-lychee/scripts/list_voices.py`：拉公共音色池并缓存 24 小时，成功输出 pretty-print JSON。
+- `skills/voice-lychee/scripts/list_tasks.py`：查任务历史，成功输出单行 JSON。
 
 失败 stderr：
 
