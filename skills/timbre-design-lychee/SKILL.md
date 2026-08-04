@@ -1,92 +1,98 @@
 ---
 name: timbre-design-lychee
-version: 1.0.0
+version: 3.0.0
 description: |
-  调 lychee-openapi 的音色设计接口 /open/timbre-design/generate，按性别/年龄/风格/口音生成试听音色。
-  触发：用户说「设计音色」「生成新音色」「按 XX 风格生成」「/timbre-design」。
-  注意：返回的 audioUrl 是试听音频 URL（camelCase 字段），不是二进制；本 skill 一次同步返回（服务端内部轮询），不需要客户端再轮询。
+  调 lychee-openapi 的音色设计接口 /open/timbre-design/generate-mimo，用自然语言描述生成试听音色。
+  触发：用户说「设计音色」「生成新音色」「描述一个声音」「/timbre-design」「mimo」。
+  一次同步返回 audioUrl（试听音频 URL），不需要客户端轮询。
 ---
 
 # Timbre Design Lychee
 
-按语言、性别、年龄、音高、风格和口音生成一段可下载的试听音频。
+用一段话描述想要的音色，拿到一段可下载的试听音频。
 
-## 配置
+## 用户场景
 
-设置环境变量 `LYCHEE_API_KEY`。
+> 默认**不润色**。用户提到"润色""改得顺口""优化一下"才润色；提到"原文念""不润色"才显式不润色；都没提则不传 `--optimize-text/--no-optimize-text`，body 不带字段。
+
+**Case 1** —— 用户说："帮我设计一个年轻女声，读'你好，欢迎收听'"
+> agent 跑 `design --description "年轻女声" --text "你好，欢迎收听"`，拿到 audioUrl 链接给用户
+
+**Case 2** —— 用户说："来个磁性男声，中年稳重，做个新闻播报试试"
+> agent 跑 `design --description "磁性男声，中年稳重" --text "今日新闻"`，链接回给用户
+
+**Case 3** —— 用户贴一段具体描述："少女音，活泼可爱，读'嗨，大家好'"
+> agent 跑 `design --description "少女音，活泼可爱" --text "嗨，大家好"`，链接回给用户
+
+**Case 4** —— 用户说："设计个温柔女声，润色一下读'嗯，那个，晚饭想好吃啥了吗'"
+> agent 跑 `design --description "温柔女声" --text "嗯，那个，晚饭想好吃啥了吗" --optimize-text`，链接回给用户
 
 ## 用法
 
 ```bash
-python scripts/design.py --text "你好，这是音色设计测试。" --lang zh --gender 2 --age 2
-python scripts/design.py --text "您好。" --lang zh --gender 1 --age 3 --pitch 3 --accent 4
-python scripts/design.py --text "Hello from the new voice." --lang en --gender 2 --age 2 --accent 4 --output result.json
+# 默认（不润色 text）
+python scripts/design.py --description "年轻女性，声音清脆活泼" --text "你好，欢迎收听今天的节目"
+
+# 显式润色 text
+python scripts/design.py --description "中年男性，沉稳磁性" --text "今日新闻" --optimize-text
+
+# 不润色
+python scripts/design.py --description "少女音，活泼可爱" --text "嗨" --no-optimize-text
 ```
 
 ## 参数
 
-| 参数 | 必填 | 默认值 | 说明 |
-|---|---:|---|---|
+| 参数 | 必填 | 默认 | 说明 |
+| --- | ---: | --- | --- |
+| `--description` | 是 | 无 | 音色自然语言描述，最多 500 字符 |
 | `--text` | 是 | 无 | 试听文本，最多 500 字符 |
-| `--lang` | 是 | 无 | `zh/en/ja/de/fr/es/ko/ar/ru/nl/it/pl/pt/vi/id/th` |
-| `--gender` | 是 | 无 | `1`=男，`2`=女 |
-| `--age` | 是 | 无 | `1`=儿童，`2`=青年，`3`=中年，`4`=老年 |
-| `--pitch` | 否 | `1` | `1`=跳过，`2`=极低，`3`=低，`4`=中，`5`=高，`6`=极高 |
-| `--style` | 否 | `1` | `1`=跳过，`2`=耳语 |
-| `--accent` | 否 | `1` | `1`=跳过；中文 2-13，英文 2-11 |
-| `--timeout` | 否 | `180` | 服务端内部轮询最多 120 秒，预留网络开销 |
-| `--output` | 否 | 无 | 将完整 JSON 响应写入文件 |
+| `--optimize-text` | 否 | 都不传 | 服务端润色 `text`（与 `--no-optimize-text` 互斥） |
+| `--no-optimize-text` | 否 | 都不传 | 不润色 `text` |
+| `--timeout` | 否 | `180` | HTTP 超时秒数 |
+| `--output` | 否 | 无 | 将完整响应 JSON 写入文件 |
 
-## 口音值
+> `--optimize-text` 和 `--no-optimize-text` **都不传**时，body 不带 `optimize_text` 字段，由后端决定默认行为。
 
-中文：`2`=河南，`3`=陕西，`4`=四川，`5`=贵州，`6`=云南，`7`=桂林，`8`=济南，`9`=石家庄，`10`=甘肃，`11`=宁夏，`12`=青岛，`13`=东北。
-
-英文：`2`=American，`3`=Australian，`4`=British，`5`=Chinese，`6`=Canadian，`7`=Indian，`8`=Korean，`9`=Portuguese，`10`=Russian，`11`=Japanese。
-
-## 响应与超时
-
-服务端内部会最多轮询 24 次、每次 5 秒，客户端只发送一次 generate 请求，不调用 status。建议保持 `--timeout 180`。
-
-- `audioUrl`：可下载的试听音频完整 URL。
-- `requestId`：任务 ID，后续可用于查询 `/open/timbre-design/status`。
-- `outputDir`：服务端输出目录。
-
-字段为 camelCase，成功时输出：
+## 响应
 
 ```json
 {"success": true, "audioUrl": "http://...", "requestId": "<uuid>"}
 ```
 
+- `audioUrl`：可下载的试听音频完整 URL
+- `requestId`：音频 ID
+
+成功立即返回，**客户端不轮询**（mimo 走同步）。
+
 ## When to use
 
-按描述(性别/年龄/口音/风格)生成**试听**音色,**不能直接合成文本**。试听满意后用户需自行选择 preset 路径(`tts-lychee` 的内置音色)。
+按一段话描述生成**试听**音色，**不能直接合成文本**。试听满意后用户需自行选择 preset 路径（`tts-lychee` 的内置音色）。
 
 ## Process
 
-1. 读 `--text`/`--lang`/`--gender`(1/2)/`--age`(1-4)/`--pitch`/`--style`/`--accent`
-2. 校验文本非空、性别在 {1, 2}、lang 在支持列表
-3. 读 `LYCHEE_API_KEY`,构造 JSON body
-4. POST 到 `/open/timbre-design/generate`(服务端内部轮询,客户端只发 1 次)
-5. 解包 data:`audioUrl`(试听 URL)、`requestId`、`outputDir`
-6. stdout JSON(camelCase!),失败抛 LycheeApiError
+1. 读 `--description`（必填）+ `--text`（必填）+ 可选 `--optimize-text/--no-optimize-text`
+2. 校验两者都非空 + 字符上限 500
+3. 构造 body：`{description, text}`，若显式传了润色 flag 则加 `optimize_text`
+4. POST 到 `/open/timbre-design/generate-mimo`
+5. 解包：`audioUrl`（必）+ `requestId`
+6. stdout JSON，失败抛 `LycheeApiError`
 
 ## Red flags
 
-- `audioUrl` 空字符串或缺失:后端生成失败(可能风格/口音组合不支持)
-- 退出码 1 + 退出 504:`--timeout 180` 不够,服务端内部最多轮询 120 秒
-- `requestId` 为 null:成功路径上不应出现,可能脚本解析错
+- `--description` 或 `--text` 空 / 超 500 字符 → 参数校验拒绝
+- 退出码 1 + 401：API key 无效
 
 ## Verification
 
-成功:
+成功：
 
-- 退出码 0
+- exit 0
 - stdout `{"success": true, "audioUrl": "<http url>", "requestId": "<uuid>"}`
-- `audioUrl` 可下载(curl 200)
+- `audioUrl` 可下载（curl 200）
 
-快速验证:
+快速验证：
 
 ```bash
-python scripts/design.py --text "示例" --lang zh --gender 2 --age 2 --output ./design.json
+python scripts/design.py --description "年轻女性，清脆" --text "你好" --output ./design.json
 curl -I "$(jq -r .audioUrl ./design.json)"  # 200
 ```
