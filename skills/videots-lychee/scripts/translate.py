@@ -5,7 +5,6 @@ import argparse
 import json
 import mimetypes
 import sys
-from contextlib import ExitStack
 from pathlib import Path
 from typing import Any, Dict, Optional, Sequence
 
@@ -19,7 +18,8 @@ from errors import format_error
 from poll_status import poll_status
 
 MAX_SRT_SIZE = 1024 * 1024
-ACTIONS = ("translate", "retranslate", "back-translation")
+MAX_FILE_URL_LENGTH = 2048
+ACTIONS = ("translate",)
 
 
 def configure_stdio() -> None:
@@ -32,17 +32,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="提交、查询和下载 lychee Video-TS 字幕翻译任务。"
     )
-    parser.add_argument("--action", choices=ACTIONS, help="翻译动作")
-    parser.add_argument("--file", type=Path, help="translate/back-translation 使用的 SRT")
-    parser.add_argument("--tos-path", help="translate/back-translation 使用的 TOS 路径")
-    parser.add_argument("--file-original", type=Path, help="retranslate 原始 SRT")
-    parser.add_argument("--file-translated", type=Path, help="retranslate 已翻译 SRT")
-    parser.add_argument("--tos-path-original", help="retranslate 原始 SRT 的 TOS 路径")
-    parser.add_argument("--tos-path-translated", help="retranslate 已翻译 SRT 的 TOS 路径")
+    parser.add_argument("--action", choices=ACTIONS, help="翻译动作（仅 translate）")
+    parser.add_argument("--file", type=Path, help="本地 SRT 文件路径（≤1MB）")
+    parser.add_argument("--file-url", help="公网 HTTP/HTTPS SRT 链接（≤2048 字符）")
     parser.add_argument("--target-language", help="目标语言（提交任务时必填）")
     parser.add_argument("--user-prompt", default="", help="可选翻译提示词")
-    parser.add_argument("--retranslation-items", help="retranslate 必填的 JSON 字符串")
-    parser.add_argument("--mode", default="direct", help="提交模式（默认 direct）")
     parser.add_argument("--interval", type=float, default=5.0, help="轮询间隔秒数（默认 5）")
     parser.add_argument("--timeout", type=float, default=600.0, help="最长等待秒数（默认 600）")
     parser.add_argument("--download-output", type=Path, help="下载完成后的 SRT 到此路径")
@@ -62,6 +56,13 @@ def validate_srt(path: Path, label: str) -> None:
         raise ValueError("{}超过 1MB 限制".format(label))
 
 
+def validate_file_url(url: str) -> None:
+    if len(url) > MAX_FILE_URL_LENGTH:
+        raise ValueError("--file-url 长度不能超过 {} 字符".format(MAX_FILE_URL_LENGTH))
+    if not (url.startswith("http://") or url.startswith("https://")):
+        raise ValueError("--file-url 必须以 http:// 或 https:// 开头")
+
+
 def validate_args(args: argparse.Namespace) -> None:
     if args.interval <= 0:
         raise ValueError("--interval 必须大于 0")
@@ -78,31 +79,16 @@ def validate_args(args: argparse.Namespace) -> None:
     if args.no_wait and args.download_output:
         raise ValueError("--no-wait 不能与 --download-output 同时使用")
 
-    if args.action in ("translate", "back-translation"):
-        if bool(args.file) == bool(args.tos_path):
-            raise ValueError("必须且只能提供 --file 或 --tos-path 其中一个")
-        if args.file:
-            validate_srt(args.file, "SRT 文件")
+    has_file = bool(args.file)
+    has_url = bool(args.file_url)
+    if has_file and has_url:
+        raise ValueError("--file 与 --file-url 不能同时使用")
+    if not has_file and not has_url:
+        raise ValueError("必须提供 --file 或 --file-url 其中一个")
+    if has_file:
+        validate_srt(args.file, "SRT 文件")
     else:
-        file_pair = bool(args.file_original) and bool(args.file_translated)
-        tos_pair = bool(args.tos_path_original) and bool(args.tos_path_translated)
-        if file_pair == tos_pair:
-            raise ValueError(
-                "retranslate 必须且只能提供一套文件或 TOS 路径"
-            )
-        if bool(args.file_original) != bool(args.file_translated):
-            raise ValueError("--file-original 与 --file-translated 必须成对提供")
-        if bool(args.tos_path_original) != bool(args.tos_path_translated):
-            raise ValueError("两个 retranslate TOS 路径必须成对提供")
-        if file_pair:
-            validate_srt(args.file_original, "原始 SRT")
-            validate_srt(args.file_translated, "已翻译 SRT")
-        if not args.retranslation_items:
-            raise ValueError("retranslate 必须提供 --retranslation-items")
-        try:
-            json.loads(args.retranslation_items)
-        except json.JSONDecodeError as exc:
-            raise ValueError("--retranslation-items 不是有效 JSON: {}".format(exc))
+        validate_file_url(args.file_url)
 
 
 def compact(data: Dict[str, Any]) -> Dict[str, Any]:
@@ -113,51 +99,20 @@ def submit(args: argparse.Namespace) -> Dict[str, Any]:
     data: Dict[str, Any] = {
         "target_language": args.target_language,
         "user_prompt": args.user_prompt,
-        "mode": args.mode,
     }
+    if args.file_url:
+        data["file_url"] = args.file_url
     files: Dict[str, Any] = {}
+    if args.file:
+        mime = mimetypes.guess_type(str(args.file))[0] or "application/x-subrip"
+        files["file"] = (args.file.name, args.file.open("rb"), mime)
 
-    with ExitStack() as stack:
-        if args.action in ("translate", "back-translation"):
-            data["tos_path"] = args.tos_path
-            if args.file:
-                handle = stack.enter_context(args.file.open("rb"))
-                mime = mimetypes.guess_type(str(args.file))[0] or "application/x-subrip"
-                files["file"] = (args.file.name, handle, mime)
-        else:
-            data.update(
-                {
-                    "tos_path_original": args.tos_path_original,
-                    "tos_path_translated": args.tos_path_translated,
-                    "retranslation_items": args.retranslation_items,
-                }
-            )
-            if args.file_original and args.file_translated:
-                original = stack.enter_context(args.file_original.open("rb"))
-                translated = stack.enter_context(args.file_translated.open("rb"))
-                files["file_original"] = (
-                    args.file_original.name,
-                    original,
-                    "application/x-subrip",
-                )
-                files["file_translated"] = (
-                    args.file_translated.name,
-                    translated,
-                    "application/x-subrip",
-                )
-
-        result = post_multipart(
-            "/open/videots/{}".format(args.action),
-            files=files,
-            data=compact(data),
-            timeout=args.timeout,
-        )
-
-    if not isinstance(result, dict):
-        raise LycheeApiError(500, "videots submit response is not an object")
-    if not task_id_from(result):
-        raise LycheeApiError(500, "videots submit response is missing task_id")
-    return result
+    return post_multipart(
+        "/open/videots/translate",
+        files=files,
+        data=compact(data),
+        timeout=args.timeout,
+    )
 
 
 def task_id_from(result: Dict[str, Any]) -> Optional[str]:
