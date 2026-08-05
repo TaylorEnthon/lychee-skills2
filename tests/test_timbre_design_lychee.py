@@ -33,7 +33,7 @@ def test_skill_md_has_yaml_frontmatter(skill_dir):
 
 
 def test_script_help_runs(skill_dir):
-    assert_script_help(skill_dir, "design.py", ["--text", "--lang", "--gender"])
+    assert_script_help(skill_dir, "design.py", ["--text", "--optimize-text", "--no-optimize-text"])
 
 
 def test_doctor_runs_without_api_key(skill_dir, tmp_workspace_path, monkeypatch):

@@ -34,7 +34,7 @@ def load_module():
 def test_json_modes_send_expected_reference_type(monkeypatch, tmp_path, extra, expected):
     module = load_module()
     output = tmp_path / "out.wav"
-    post_json = MagicMock(return_value={"audio_url": "https://example.com/out.wav", "duration_ms": 1200})
+    post_json = MagicMock(return_value={"audio_url": "https://example.com/out.wav", "duration": 2})
     monkeypatch.setattr(module, "post_json", post_json)
     response = MagicMock(content=b"audio")
     response.raise_for_status.return_value = None
@@ -52,7 +52,7 @@ def test_image_mode_uses_multipart(monkeypatch, tmp_path):
     image = tmp_path / "face.png"
     image.write_bytes(b"png")
     output = tmp_path / "out.mp3"
-    post_multipart = MagicMock(return_value={"audio_url": "https://example.com/out.mp3", "duration_ms": 8})
+    post_multipart = MagicMock(return_value={"audio_url": "https://example.com/out.mp3", "duration": 5})
     monkeypatch.setattr(module, "post_multipart", post_multipart)
     response = MagicMock(content=b"mp3")
     response.raise_for_status.return_value = None
@@ -68,7 +68,7 @@ def test_duration_response_is_exposed_as_duration_ms(monkeypatch, tmp_path, caps
     output = tmp_path / "out.wav"
     monkeypatch.setattr(module, "post_json", MagicMock(return_value={
         "audio_url": "https://example.com/out.wav",
-        "duration": 1200,
+        "duration": 6,
     }))
     response = MagicMock(content=b"audio")
     response.raise_for_status.return_value = None
@@ -76,7 +76,7 @@ def test_duration_response_is_exposed_as_duration_ms(monkeypatch, tmp_path, caps
 
     assert module.main(["--text", "你好", "--output", str(output)]) == 0
 
-    assert json.loads(capsys.readouterr().out)["duration_ms"] == 1200
+    assert json.loads(capsys.readouterr().out)["duration_ms"] == 6000
 
 
 def test_voice_names_partial_missing_falls_back_to_text(monkeypatch, tmp_path, capsys):
@@ -92,7 +92,7 @@ def test_voice_names_partial_missing_falls_back_to_text(monkeypatch, tmp_path, c
     http_client = sys.modules["http_client"]
     get_json_mock = MagicMock(return_value=pool)
     monkeypatch.setattr(http_client, "get_json", get_json_mock)
-    post_json = MagicMock(return_value={"audio_url": "https://example.com/out.wav", "duration": 1500})
+    post_json = MagicMock(return_value={"audio_url": "https://example.com/out.wav", "duration": 5})
     monkeypatch.setattr(module, "post_json", post_json)
     response = MagicMock(content=b"audio")
     response.raise_for_status.return_value = None
@@ -124,7 +124,7 @@ def test_voice_names_all_missing_falls_back_to_text(monkeypatch, tmp_path, capsy
     http_client = sys.modules["http_client"]
     get_json_mock = MagicMock(return_value=pool)
     monkeypatch.setattr(http_client, "get_json", get_json_mock)
-    post_json = MagicMock(return_value={"audio_url": "https://example.com/out.wav", "duration": 1500})
+    post_json = MagicMock(return_value={"audio_url": "https://example.com/out.wav", "duration": 5})
     monkeypatch.setattr(module, "post_json", post_json)
     response = MagicMock(content=b"audio")
     response.raise_for_status.return_value = None
@@ -154,7 +154,7 @@ def test_voice_names_all_resolved_uses_voices_mode(monkeypatch, tmp_path, capsys
     http_client = sys.modules["http_client"]
     get_json_mock = MagicMock(return_value=pool)
     monkeypatch.setattr(http_client, "get_json", get_json_mock)
-    post_json = MagicMock(return_value={"audio_url": "https://example.com/out.wav", "duration": 1500})
+    post_json = MagicMock(return_value={"audio_url": "https://example.com/out.wav", "duration": 5})
     monkeypatch.setattr(module, "post_json", post_json)
     response = MagicMock(content=b"audio")
     response.raise_for_status.return_value = None
@@ -203,7 +203,7 @@ def test_polish_default_auto_in_payload(monkeypatch, tmp_path, capsys):
     module = load_module()
     output = tmp_path / "out.wav"
     monkeypatch.setattr(module, "post_json", MagicMock(return_value={
-        "audio_url": "https://example.com/out.wav", "duration": 1500,
+        "audio_url": "https://example.com/out.wav", "duration": 5,
     }))
     response = MagicMock(content=b"audio")
     response.raise_for_status.return_value = None
@@ -219,7 +219,7 @@ def test_no_polish_sets_payload_field(monkeypatch, tmp_path, capsys):
     module = load_module()
     output = tmp_path / "out.wav"
     monkeypatch.setattr(module, "post_json", MagicMock(return_value={
-        "audio_url": "https://example.com/out.wav", "duration": 1500,
+        "audio_url": "https://example.com/out.wav", "duration": 5,
     }))
     response = MagicMock(content=b"audio")
     response.raise_for_status.return_value = None
@@ -235,7 +235,7 @@ def test_polish_sets_payload_field(monkeypatch, tmp_path, capsys):
     module = load_module()
     output = tmp_path / "out.wav"
     monkeypatch.setattr(module, "post_json", MagicMock(return_value={
-        "audio_url": "https://example.com/out.wav", "duration": 1500,
+        "audio_url": "https://example.com/out.wav", "duration": 5,
     }))
     response = MagicMock(content=b"audio")
     response.raise_for_status.return_value = None

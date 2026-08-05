@@ -243,7 +243,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         payload = {
             "success": True,
             "output": str(output),
-            "duration_ms": result.get("duration"),
+            "duration_ms": result.get("duration") * 1000,
             "audio_url": result["audio_url"],
             "mode": reference_type(args),
             "polish": polish_strategy,
